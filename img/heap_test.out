@@ -1,0 +1,44 @@
+Setup:si={
+Boot_Map={n_cpus=1,mem_base=0x00000000,mem_top=0x3eefffff,io_base=0x3ef00000,io_
+top=0x400000ff,node_id=-1,space=(-1,-1,-1),uuid=0x00410024,img_size=,setup_offse
+t=0xffffffff,init_offset=0xffffffff,system_offset=0xffffffff,application_offset=
+0,extras_offset=0xffffffff}
+Physical_Memory_Map={sys_info=0x00000000,sys_pt=0x00000000,sys_pd=0x00000000,phy
+_mem_pts=0x00000000,io_pts=0x00000000,usr_mem_base=0x00000000,usr_mem_top=0x0000
+0000,sys_code=0x00000000,sys_data=0x00000000,sys_stack=0x00000000,app_code=0x000
+00000,app_data=0x00000000,app_extra=0x00000000,free1_base=0x00000000,free1_top=0
+x00000000,free2_base=0x00000000,free2_top=0x00000000}
+Load_Map={has_stp=0,has_ini=0,has_sys=0,has_app=0,has_ext=0,stp_entry=0x00000000
+,stp_segments=0,stp_code={b=0x00000000,s=0},stp_data={b=0x00000000,s=0},ini_entr
+y=0x00000000,ini_segments=0,ini_code={b=0x00000000,s=0},ini_data={b=0x00000000,s
+=0},sys_entry=0x00000000,sys_segments=0,sys_code={b=0x00000000,s=0},sys_data={b=
+0x00000000,s=0},sys_stack=0x00000000,app_entry=0x00000000,app_segments=0,app_cod
+e={b=0x00000000,s=0},app_data={b=0x00000000,s=0},app_stack=0x00000000,app_heap=0
+x00000000,app_extra={b=0x00000000,s=0}}}
+SETUP ends here!
+Initializing the CPU: 
+MMU::init::dat.e=,bss.b=,bss.e=
+done!
+Initializing system's heap: 
+done!
+Initializing the machine: 
+done!
+Initializing system abstractions: 
+done!
+Randomizing the Random Numbers Generator's seed: done!
+Initializing application's heap: 
+done!
+INIT ends here!
+Dispatching the first thread: 0x3eefbfc4
+Hello world!
+Thread::dispatch:prev={0x3eefbfc4,ctx={r0=0xfd290c16,r1=0xfd390c16,r2=0xfd490c16
+,r3=0xfd590c16,r4=0xfd690c16,r5=0xfd790c16,r6=0xfd890c16,r7=0xfd990c16,r8=0xfda9
+0c16,r9=0xfdb90c16,r10=0xfdc90c16,r11=0xfdd90c16,r12=0,sp=0x3eefbf3c,lr=0x110ac,
+pc=13,psr=0xfd190c16,usp=0xfcf90c16,ulr=0xfd090c16}}
+Thread::dispatch:next={0x3eef7f98,ctx={r0=0,r1=0,r2=0,r3=0,r4=0,r5=0,r6=0,r7=0,r
+8=0,r9=0,r10=0,r11=0,r12=0,sp=0x3eef7f4c,lr=0x110ac,pc=0x128a0,psr=13,usp=0,ulr=
+0x110ac}}
+The last thread has exited!
+Rebooting the machine ...
+Machine::reboot()
+Machine::reboot()
