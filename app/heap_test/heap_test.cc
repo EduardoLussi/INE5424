@@ -21,7 +21,10 @@ char* alloc(int bytes) {
 
 int main()
 {
-    cout << "Testing the heap allocation!" << endl;
+    kout << "################################" << endl;
+    cout << "#       Entering main...       #" << endl;
+    cout << "# Testing the heap allocation! #" << endl;
+    kout << "################################" << endl;
     alloc(1 << 2);
     alloc(1 << 5);
     alloc(1 << 10);

@@ -53,6 +53,7 @@ public:
 
         Element * e = search_decrementing(bytes);
         #if DEBUG_E6
+            kout << "####################" << endl;
             kout << "Current list:" << endl;
             print_list();
             kout << "First fit (size):" << first_fit(bytes)->size() << endl;
