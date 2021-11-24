@@ -19,6 +19,8 @@ public:
     using Grouping_List<char>::empty;
     using Grouping_List<char>::size;
     using Grouping_List<char>::grouped_size;
+    using Grouping_List<char>::search_size;
+    using Grouping_List<char>::first_fit;
 
     Heap() {
         db<Init, Heaps>(TRC) << "Heap() => " << this << endl;
@@ -47,6 +49,10 @@ public:
             bytes = sizeof(Element);
 
         Element * e = search_decrementing(bytes);
+        #if 1
+            kout << "First fit (size):" << first_fit(bytes)->size() << endl;
+            kout << "Best fit (size): " << search_size(bytes)->size() << endl;
+        #endif
         if(!e) {
             out_of_memory();
             return 0;
