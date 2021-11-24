@@ -1355,6 +1355,13 @@ public:
         return e;
     }
 
+    void print_list() {
+      Element* e = head();
+      int i = 1;
+      for (; e; e = e->next())
+        kout << "Element #" << i++ << "->size(): " << e->size() << endl;
+    }
+
     Element* search_size(unsigned int s)  {
         Element* e = head();
         Element* bestFit = nullptr;

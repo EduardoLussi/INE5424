@@ -15,13 +15,13 @@ void method_test()
 }
 
 char* alloc(int bytes) {
-    cout << "Allocating " << bytes << "bytes." << endl;
+    cout << "Allocating " << bytes << " bytes." << endl;
     return new char[bytes];
 }
 
 int main()
 {
-    cout << "Hello World!" << endl;
+    cout << "Testing the heap allocation!" << endl;
     alloc(1 << 2);
     alloc(1 << 5);
     alloc(1 << 10);

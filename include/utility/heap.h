@@ -7,6 +7,8 @@
 #include <utility/list.h>
 #include <utility/spin.h>
 
+#define DEBUG_E6 1
+
 __BEGIN_UTIL
 
 // Heap
@@ -21,6 +23,7 @@ public:
     using Grouping_List<char>::grouped_size;
     using Grouping_List<char>::search_size;
     using Grouping_List<char>::first_fit;
+    using Grouping_List<char>::print_list;
 
     Heap() {
         db<Init, Heaps>(TRC) << "Heap() => " << this << endl;
@@ -49,9 +52,12 @@ public:
             bytes = sizeof(Element);
 
         Element * e = search_decrementing(bytes);
-        #if 1
+        #if DEBUG_E6
+            kout << "Current list:" << endl;
+            print_list();
             kout << "First fit (size):" << first_fit(bytes)->size() << endl;
             kout << "Best fit (size): " << search_size(bytes)->size() << endl;
+            kout << "####################" << endl;
         #endif
         if(!e) {
             out_of_memory();
