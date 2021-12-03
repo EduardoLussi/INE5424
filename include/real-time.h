@@ -26,10 +26,10 @@ class Periodic_Thread: public Thread
 {
 public:
     enum {
-        SAME    = Real_Time_Scheduler_Common::SAME,
-        NOW     = Real_Time_Scheduler_Common::NOW,
-        UNKNOWN = Real_Time_Scheduler_Common::UNKNOWN,
-        ANY     = Real_Time_Scheduler_Common::ANY
+        SAME    = Scheduling_Criterion_Common::SAME,
+        NOW     = Scheduling_Criterion_Common::NOW,
+        UNKNOWN = Scheduling_Criterion_Common::UNKNOWN,
+        ANY     = Scheduling_Criterion_Common::ANY
     };
 
 protected:
@@ -62,7 +62,9 @@ protected:
 
 public:
     struct Configuration: public Thread::Configuration {
-        Configuration(const Microsecond & p, const Microsecond & d = SAME, const Microsecond & cap = UNKNOWN, const Microsecond & act = NOW, const unsigned int n = INFINITE, const State & s = READY, const Criterion & c = NORMAL, unsigned int ss = STACK_SIZE)
+        Configuration(const Microsecond & p, const Microsecond & d = SAME, const Microsecond & cap = UNKNOWN, 
+                      const Microsecond & act = NOW, const unsigned int n = INFINITE, const State & s = READY, 
+                      const Criterion & c = NORMAL, unsigned int ss = STACK_SIZE)
         : Thread::Configuration(s, c, ss), period(p), deadline(d == SAME ? p : d), capacity(cap), activation(act), times(n) {}
 
         Microsecond period;
@@ -108,6 +110,43 @@ protected:
     Handler _handler;
     Alarm _alarm;
 };
+
+class RT_Thread: public Periodic_Thread
+{
+public:
+    RT_Thread(void (* function)(), const Microsecond & deadline, const Microsecond & period = SAME, 
+              const Microsecond & capacity = UNKNOWN, const Microsecond & activation = NOW, 
+              int times = INFINITE, unsigned int stack_size = STACK_SIZE)
+    : Periodic_Thread(Configuration(activation ? activation : period ? period : deadline, deadline,
+                      capacity, activation, activation ? 1 : times, SUSPENDED, 
+                      Criterion(deadline, period ? period : deadline, capacity), stack_size), &entry, 
+                      this, function, activation, times) {
+        if(activation && Criterion::dynamic)
+            // The priority of dynamic criteria will be adjusted to the correct value by the update() in the operator()() of Handler
+            const_cast<Criterion &>(_link.rank())._priority = Criterion::PERIODIC;
+        resume();
+    }
+
+private:
+    static int entry(RT_Thread * t, void (*function)(), const Microsecond activation, int times) {
+        if(activation) {
+            // Wait for activation time
+            t->_semaphore.p();
+
+            // Adjust alarm's period
+            t->_alarm.~Alarm();
+            new (&t->_alarm) Alarm(t->criterion().period(), &t->_handler, times);
+        }
+
+        // Periodic execution loop
+        do {
+            function();
+        } while (wait_next());
+
+        return 0;
+    }
+};
+
 
 typedef Periodic_Thread::Configuration RTConf;
 
