@@ -1,0 +1,671 @@
+diff --git a/app/RM_test/RM_test.cc b/app/RM_test/RM_test.cc
+new file mode 100644
+index 0000000..13814db
+--- /dev/null
++++ b/app/RM_test/RM_test.cc
+@@ -0,0 +1,62 @@
++// EPOS Semaphore Component Test Program
++
++#include <machine/display.h>
++#include <time.h>
++#include <synchronizer.h>
++#include <process.h>
++#include <real-time.h>
++#include <time.h>
++
++using namespace EPOS;
++
++RT_Thread* tasks[3];
++
++OStream cout;
++
++int s = 1000000; // Seconds
++
++Chronometer* cA = new Chronometer();
++void A() {
++    cout << "Thread A running..." << endl;
++    cA->start();
++    while (1) { // Busy wait 5s until it is preempted
++        cA->lap();
++        if (int(cA->read()) >= int(5*s)) break;
++    }
++    cA->reset();
++    cout << "Thread A finished" << endl;
++}
++
++Chronometer* cB = new Chronometer();
++void B() {
++    cout << "Thread B running..." << endl;
++    cB->start();
++    while (1) { // Busy wait 1s until it is preempted
++        cB->lap();
++        if (int(cB->read()) >= int(1*s)) break;
++    }
++    cB->reset();
++    cout << "Thread B finished" << endl;
++}
++
++Chronometer* cC = new Chronometer();
++void C() {
++    cout << "Thread C running..." << endl;
++    cC->start();
++    while (1) { // Busy wait 0.2s until it is preempted
++        cC->lap();
++        if (int(cC->read()) >= int(0.2*s)) break;
++    }
++    cC->reset();
++    cout << "Thread C finished" << endl;
++}
++
++int main()
++{
++    tasks[0] = new RT_Thread(&A, 10*s, 10*s);   // period = deadline = 10s
++    tasks[1] = new RT_Thread(&B, 4*s, 4*s);     // period = deadline = 4s
++    tasks[2] = new RT_Thread(&C, 1*s, 1*s);     // period = deadline = 1s
++    // C should run first and can preempt A and B
++    // B should run if C is not running and can preempt A
++    // A should run if neither C or B is running
++}
+diff --git a/app/RM_test/RM_test_traits.h b/app/RM_test/RM_test_traits.h
+new file mode 100644
+index 0000000..5e61b4f
+--- /dev/null
++++ b/app/RM_test/RM_test_traits.h
+@@ -0,0 +1,155 @@
++#ifndef __traits_h
++#define __traits_h
++
++#include <system/config.h>
++
++__BEGIN_SYS
++
++// Build
++template<> struct Traits<Build>: public Traits_Tokens
++{
++    // Basic configuration
++    static const unsigned int MODE = LIBRARY;
++    static const unsigned int ARCHITECTURE = ARMv7;
++    static const unsigned int MACHINE = Cortex;
++    static const unsigned int MODEL = Raspberry_Pi3;
++    static const unsigned int CPUS = 1;
++    static const unsigned int NODES = 1; // (> 1 => NETWORKING)
++    static const unsigned int EXPECTED_SIMULATION_TIME = 60; // s (0 => not simulated)
++
++    // Default flags
++    static const bool enabled = true;
++    static const bool monitored = false;
++    static const bool debugged = true;
++    static const bool hysterically_debugged = false;
++
++    // Default aspects
++    typedef ALIST<> ASPECTS;
++};
++
++
++// Utilities
++template<> struct Traits<Debug>: public Traits<Build>
++{
++    static const bool error   = true;
++    static const bool warning = true;
++    static const bool info    = false;
++    static const bool trace   = false;
++};
++
++template<> struct Traits<Lists>: public Traits<Build>
++{
++    static const bool debugged = hysterically_debugged;
++};
++
++template<> struct Traits<Spin>: public Traits<Build>
++{
++    static const bool debugged = hysterically_debugged;
++};
++
++template<> struct Traits<Heaps>: public Traits<Build>
++{
++    static const bool debugged = hysterically_debugged;
++};
++
++template<> struct Traits<Observers>: public Traits<Build>
++{
++    // Some observed objects are created before initializing the Display
++    // Enabling debug may cause trouble in some Machines
++    static const bool debugged = false;
++};
++
++
++// System Parts (mostly to fine control debugging)
++template<> struct Traits<Boot>: public Traits<Build>
++{
++};
++
++template<> struct Traits<Setup>: public Traits<Build>
++{
++};
++
++template<> struct Traits<Init>: public Traits<Build>
++{
++};
++
++template<> struct Traits<Framework>: public Traits<Build>
++{
++};
++
++template<> struct Traits<Aspect>: public Traits<Build>
++{
++    static const bool debugged = hysterically_debugged;
++};
++
++
++__END_SYS
++
++// Mediators
++#include __ARCHITECTURE_TRAITS_H
++#include __MACHINE_TRAITS_H
++
++__BEGIN_SYS
++
++
++// API Components
++template<> struct Traits<Application>: public Traits<Build>
++{
++    static const unsigned int STACK_SIZE = Traits<Machine>::STACK_SIZE;
++    static const unsigned int HEAP_SIZE = Traits<Machine>::HEAP_SIZE;
++    static const unsigned int MAX_THREADS = Traits<Machine>::MAX_THREADS;
++};
++
++template<> struct Traits<System>: public Traits<Build>
++{
++    static const unsigned int mode = Traits<Build>::MODE;
++    static const bool multithread = (Traits<Build>::CPUS > 1) || (Traits<Application>::MAX_THREADS > 1);
++    static const bool multitask = (mode != Traits<Build>::LIBRARY);
++    static const bool multicore = (Traits<Build>::CPUS > 1) && multithread;
++    static const bool multiheap = multitask || Traits<Scratchpad>::enabled;
++
++    static const unsigned long LIFE_SPAN = 1 * YEAR; // s
++    static const unsigned int DUTY_CYCLE = 1000000; // ppm
++
++    static const bool reboot = true;
++
++    static const unsigned int STACK_SIZE = Traits<Machine>::STACK_SIZE;
++    static const unsigned int HEAP_SIZE = (Traits<Application>::MAX_THREADS + 1) * Traits<Application>::STACK_SIZE;
++};
++
++template<> struct Traits<Task>: public Traits<Build>
++{
++    static const bool enabled = Traits<System>::multitask;
++};
++
++template<> struct Traits<Thread>: public Traits<Build>
++{
++    static const bool enabled = Traits<System>::multithread;
++    static const bool smp = Traits<System>::multicore;
++    static const bool trace_idle = hysterically_debugged;
++    static const bool simulate_capacity = false;
++
++    typedef RM Criterion;
++    static const unsigned int QUANTUM = 10000; // us
++};
++
++template<> struct Traits<Scheduler<Thread>>: public Traits<Build>
++{
++    //static const bool debugged = Traits<Thread>::trace_idle || hysterically_debugged;
++    static const bool debugged = true;
++};
++
++template<> struct Traits<Synchronizer>: public Traits<Build>
++{
++    static const bool enabled = Traits<System>::multithread;
++};
++
++template<> struct Traits<Alarm>: public Traits<Build>
++{
++    static const bool visible = hysterically_debugged;
++};
++
++
++__END_SYS
++
++#endif
+diff --git a/app/RM_test/makefile b/app/RM_test/makefile
+new file mode 100644
+index 0000000..8a6578a
+--- /dev/null
++++ b/app/RM_test/makefile
+@@ -0,0 +1,17 @@
++# EPOS Application Makefile
++
++include ../../makedefs
++
++all: install
++
++$(APPLICATION):	$(APPLICATION).o $(LIB)/*
++		$(ALD) $(ALDFLAGS) -o $@ $(APPLICATION).o
++
++$(APPLICATION).o: $(APPLICATION).cc $(SRC)
++		$(ACC) $(ACCFLAGS) -o $@ $<
++
++install: $(APPLICATION)
++		$(INSTALL) $(APPLICATION) $(IMG)
++
++clean:
++		$(CLEAN) *.o $(APPLICATION)
+diff --git a/app/heap_test/heap_test.cc b/app/heap_test/heap_test.cc
+new file mode 100644
+index 0000000..cea3c66
+--- /dev/null
++++ b/app/heap_test/heap_test.cc
+@@ -0,0 +1,26 @@
++#include <utility/ostream.h>
++
++using namespace EPOS;
++
++OStream cout;
++
++char* alloc(int bytes) {
++    cout << "Allocating " << bytes << " bytes." << endl;
++    return new char[bytes];
++}
++
++int main()
++{
++    cout << "################################" << endl;
++    cout << "#       Entering main...       #" << endl;
++    cout << "# Testing the heap allocation! #" << endl;
++    cout << "################################" << endl;
++    alloc(1 << 2);
++    alloc(1 << 5);
++    alloc(1 << 10);
++    alloc(1 << 12);
++    alloc(1 << 14);
++    alloc(1 << 16);
++
++    return 0;
++}
+diff --git a/app/heap_test/heap_test_traits.h b/app/heap_test/heap_test_traits.h
+new file mode 100644
+index 0000000..77a3de8
+--- /dev/null
++++ b/app/heap_test/heap_test_traits.h
+@@ -0,0 +1,154 @@
++#ifndef __traits_h
++#define __traits_h
++
++#include <system/config.h>
++
++__BEGIN_SYS
++
++// Build
++template<> struct Traits<Build>: public Traits_Tokens
++{
++    // Basic configuration
++    static const unsigned int MODE = LIBRARY;
++    static const unsigned int ARCHITECTURE = ARMv7;
++    static const unsigned int MACHINE = Cortex;
++    static const unsigned int MODEL = Raspberry_Pi3;
++    static const unsigned int CPUS = 1;
++    static const unsigned int NODES = 1; // (> 1 => NETWORKING)
++    static const unsigned int EXPECTED_SIMULATION_TIME = 60; // s (0 => not simulated)
++
++    // Default flags
++    static const bool enabled = true;
++    static const bool monitored = false;
++    static const bool debugged = true;
++    static const bool hysterically_debugged = false;
++
++    // Default aspects
++    typedef ALIST<> ASPECTS;
++};
++
++
++// Utilities
++template<> struct Traits<Debug>: public Traits<Build>
++{
++    static const bool error   = true;
++    static const bool warning = true;
++    static const bool info    = false;
++    static const bool trace   = false;
++};
++
++template<> struct Traits<Lists>: public Traits<Build>
++{
++    static const bool debugged = hysterically_debugged;
++};
++
++template<> struct Traits<Spin>: public Traits<Build>
++{
++    static const bool debugged = hysterically_debugged;
++};
++
++template<> struct Traits<Heaps>: public Traits<Build>
++{
++    static const bool debugged = hysterically_debugged;
++};
++
++template<> struct Traits<Observers>: public Traits<Build>
++{
++    // Some observed objects are created before initializing the Display
++    // Enabling debug may cause trouble in some Machines
++    static const bool debugged = false;
++};
++
++
++// System Parts (mostly to fine control debugging)
++template<> struct Traits<Boot>: public Traits<Build>
++{
++};
++
++template<> struct Traits<Setup>: public Traits<Build>
++{
++};
++
++template<> struct Traits<Init>: public Traits<Build>
++{
++};
++
++template<> struct Traits<Framework>: public Traits<Build>
++{
++};
++
++template<> struct Traits<Aspect>: public Traits<Build>
++{
++    static const bool debugged = hysterically_debugged;
++};
++
++
++__END_SYS
++
++// Mediators
++#include __ARCHITECTURE_TRAITS_H
++#include __MACHINE_TRAITS_H
++
++__BEGIN_SYS
++
++
++// API Components
++template<> struct Traits<Application>: public Traits<Build>
++{
++    static const unsigned int STACK_SIZE = Traits<Machine>::STACK_SIZE;
++    static const unsigned int HEAP_SIZE = Traits<Machine>::HEAP_SIZE;
++    static const unsigned int MAX_THREADS = Traits<Machine>::MAX_THREADS;
++};
++
++template<> struct Traits<System>: public Traits<Build>
++{
++    static const unsigned int mode = Traits<Build>::MODE;
++    static const bool multithread = (Traits<Build>::CPUS > 1) || (Traits<Application>::MAX_THREADS > 1);
++    static const bool multitask = (mode != Traits<Build>::LIBRARY);
++    static const bool multicore = (Traits<Build>::CPUS > 1) && multithread;
++    static const bool multiheap = multitask || Traits<Scratchpad>::enabled;
++
++    static const unsigned long LIFE_SPAN = 1 * YEAR; // s
++    static const unsigned int DUTY_CYCLE = 1000000; // ppm
++
++    static const bool reboot = true;
++
++    static const unsigned int STACK_SIZE = Traits<Machine>::STACK_SIZE;
++    static const unsigned int HEAP_SIZE = (Traits<Application>::MAX_THREADS + 1) * Traits<Application>::STACK_SIZE;
++};
++
++template<> struct Traits<Task>: public Traits<Build>
++{
++    static const bool enabled = Traits<System>::multitask;
++};
++
++template<> struct Traits<Thread>: public Traits<Build>
++{
++    static const bool enabled = Traits<System>::multithread;
++    static const bool smp = Traits<System>::multicore;
++    static const bool trace_idle = hysterically_debugged;
++    static const bool simulate_capacity = false;
++
++    typedef RR Criterion;
++    static const unsigned int QUANTUM = 10000; // us
++};
++
++template<> struct Traits<Scheduler<Thread>>: public Traits<Build>
++{
++    static const bool debugged = Traits<Thread>::trace_idle || hysterically_debugged;
++};
++
++template<> struct Traits<Synchronizer>: public Traits<Build>
++{
++    static const bool enabled = Traits<System>::multithread;
++};
++
++template<> struct Traits<Alarm>: public Traits<Build>
++{
++    static const bool visible = hysterically_debugged;
++};
++
++
++__END_SYS
++
++#endif
+diff --git a/app/heap_test/makefile b/app/heap_test/makefile
+new file mode 100644
+index 0000000..8a6578a
+--- /dev/null
++++ b/app/heap_test/makefile
+@@ -0,0 +1,17 @@
++# EPOS Application Makefile
++
++include ../../makedefs
++
++all: install
++
++$(APPLICATION):	$(APPLICATION).o $(LIB)/*
++		$(ALD) $(ALDFLAGS) -o $@ $(APPLICATION).o
++
++$(APPLICATION).o: $(APPLICATION).cc $(SRC)
++		$(ACC) $(ACCFLAGS) -o $@ $<
++
++install: $(APPLICATION)
++		$(INSTALL) $(APPLICATION) $(IMG)
++
++clean:
++		$(CLEAN) *.o $(APPLICATION)
+diff --git a/app/philosophers_dinner/philosophers_dinner_traits.h b/app/philosophers_dinner/philosophers_dinner_traits.h
+index 77a3de8..5c6b4f5 100644
+--- a/app/philosophers_dinner/philosophers_dinner_traits.h
++++ b/app/philosophers_dinner/philosophers_dinner_traits.h
+@@ -129,7 +129,7 @@ template<> struct Traits<Thread>: public Traits<Build>
+     static const bool trace_idle = hysterically_debugged;
+     static const bool simulate_capacity = false;
+ 
+-    typedef RR Criterion;
++    typedef RM Criterion;
+     static const unsigned int QUANTUM = 10000; // us
+ };
+ 
+diff --git a/include/real-time.h b/include/real-time.h
+index 4f53875..b4485f3 100644
+--- a/include/real-time.h
++++ b/include/real-time.h
+@@ -26,10 +26,10 @@ class Periodic_Thread: public Thread
+ {
+ public:
+     enum {
+-        SAME    = Real_Time_Scheduler_Common::SAME,
+-        NOW     = Real_Time_Scheduler_Common::NOW,
+-        UNKNOWN = Real_Time_Scheduler_Common::UNKNOWN,
+-        ANY     = Real_Time_Scheduler_Common::ANY
++        SAME    = Scheduling_Criterion_Common::SAME,
++        NOW     = Scheduling_Criterion_Common::NOW,
++        UNKNOWN = Scheduling_Criterion_Common::UNKNOWN,
++        ANY     = Scheduling_Criterion_Common::ANY
+     };
+ 
+ protected:
+@@ -62,7 +62,9 @@ protected:
+ 
+ public:
+     struct Configuration: public Thread::Configuration {
+-        Configuration(const Microsecond & p, const Microsecond & d = SAME, const Microsecond & cap = UNKNOWN, const Microsecond & act = NOW, const unsigned int n = INFINITE, const State & s = READY, const Criterion & c = NORMAL, unsigned int ss = STACK_SIZE)
++        Configuration(const Microsecond & p, const Microsecond & d = SAME, const Microsecond & cap = UNKNOWN, 
++                      const Microsecond & act = NOW, const unsigned int n = INFINITE, const State & s = READY, 
++                      const Criterion & c = NORMAL, unsigned int ss = STACK_SIZE)
+         : Thread::Configuration(s, c, ss), period(p), deadline(d == SAME ? p : d), capacity(cap), activation(act), times(n) {}
+ 
+         Microsecond period;
+@@ -109,6 +111,43 @@ protected:
+     Alarm _alarm;
+ };
+ 
++class RT_Thread: public Periodic_Thread
++{
++public:
++    RT_Thread(void (* function)(), const Microsecond & deadline, const Microsecond & period = SAME, 
++              const Microsecond & capacity = UNKNOWN, const Microsecond & activation = NOW, 
++              int times = INFINITE, unsigned int stack_size = STACK_SIZE)
++    : Periodic_Thread(Configuration(activation ? activation : period ? period : deadline, deadline,
++                      capacity, activation, activation ? 1 : times, SUSPENDED, 
++                      Criterion(deadline, period ? period : deadline, capacity), stack_size), &entry, 
++                      this, function, activation, times) {
++        if(activation && Criterion::dynamic)
++            // The priority of dynamic criteria will be adjusted to the correct value by the update() in the operator()() of Handler
++            const_cast<Criterion &>(_link.rank())._priority = Criterion::PERIODIC;
++        resume();
++    }
++
++private:
++    static int entry(RT_Thread * t, void (*function)(), const Microsecond activation, int times) {
++        if(activation) {
++            // Wait for activation time
++            t->_semaphore.p();
++
++            // Adjust alarm's period
++            t->_alarm.~Alarm();
++            new (&t->_alarm) Alarm(t->criterion().period(), &t->_handler, times);
++        }
++
++        // Periodic execution loop
++        do {
++            function();
++        } while (wait_next());
++
++        return 0;
++    }
++};
++
++
+ typedef Periodic_Thread::Configuration RTConf;
+ 
+ __END_SYS
+diff --git a/include/scheduler.h b/include/scheduler.h
+index 99bfd36..7c55bfc 100644
+--- a/include/scheduler.h
++++ b/include/scheduler.h
+@@ -145,6 +145,29 @@ public:
+     FCFS(int p = NORMAL, Tn & ... an);
+ };
+ 
++// Rate monotonic
++class RM: public Priority
++{
++public:
++    static const bool time = false;
++    static const bool dynamic = false;
++    static const bool preemptive = true;
++
++public:
++    RM(int p = APERIODIC): Priority(p), _deadline(0), _period(0), _capacity(0) {}
++    RM(const Microsecond & d, const Microsecond & p = SAME, const Microsecond & c = UNKNOWN)
++    : Priority(p ? p : d), _deadline(d), _period(p), _capacity(c) {}
++
++public:
++    const Microsecond period() { return _period; }
++    void period(const Microsecond & p) { _period = p; }
++
++public:
++    Microsecond _deadline;
++    Microsecond _period;
++    Microsecond _capacity;
++};
++
+ __END_SYS
+ 
+ #endif
+diff --git a/include/utility/heap.h b/include/utility/heap.h
+index 3a786c0..0641149 100644
+--- a/include/utility/heap.h
++++ b/include/utility/heap.h
+@@ -7,6 +7,8 @@
+ #include <utility/list.h>
+ #include <utility/spin.h>
+ 
++#define DEBUG_E6 0
++
+ __BEGIN_UTIL
+ 
+ // Heap
+@@ -19,6 +21,9 @@ public:
+     using Grouping_List<char>::empty;
+     using Grouping_List<char>::size;
+     using Grouping_List<char>::grouped_size;
++    using Grouping_List<char>::search_size;
++    using Grouping_List<char>::first_fit;
++    using Grouping_List<char>::print_list;
+ 
+     Heap() {
+         db<Init, Heaps>(TRC) << "Heap() => " << this << endl;
+@@ -47,6 +52,14 @@ public:
+             bytes = sizeof(Element);
+ 
+         Element * e = search_decrementing(bytes);
++        #if DEBUG_E6
++            kout << "####################" << endl;
++            kout << "Current list:" << endl;
++            print_list();
++            kout << "First fit (size):" << first_fit(bytes)->size() << endl;
++            kout << "Best fit (size): " << search_size(bytes)->size() << endl;
++            kout << "####################" << endl;
++        #endif
+         if(!e) {
+             out_of_memory();
+             return 0;
+diff --git a/include/utility/list.h b/include/utility/list.h
+index ccc8954..78d18bc 100644
+--- a/include/utility/list.h
++++ b/include/utility/list.h
+@@ -1346,7 +1346,7 @@ public:
+ 
+     unsigned int grouped_size() const { return _grouped_size; }
+ 
+-    Element * search_size(unsigned int s) {
++    Element * first_fit(unsigned int s) {
+         Element * e = head();
+         if(sizeof(Object_Type) < sizeof(Element))
+             for(; e && (e->size() < sizeof(Element) / sizeof(Object_Type) + s) && (e->size() != s); e = e->next());
+@@ -1355,6 +1355,31 @@ public:
+         return e;
+     }
+ 
++    void print_list() {
++      Element* e = head();
++      int i = 1;
++      for (; e; e = e->next())
++        kout << "Element #" << i++ << "->size(): " << e->size() << endl;
++    }
++
++    Element* search_size(unsigned int s)  {
++        Element* e = head();
++        Element* bestFit = nullptr;
++        if (sizeof(Object_Type) < sizeof(Element))
++            for (; e; e = e->next()) {
++                if ((e->size() >= sizeof(Element) / sizeof(Object_Type) + s) || (e->size() == s)) {
++                    if (!bestFit || e->size() < bestFit->size()) bestFit = e;
++                }
++            }
++        else
++            for (; e; e = e->next()) {
++                if (e->size() >= s) {
++                    if (!bestFit || e->size() < bestFit->size()) bestFit = e;
++                }
++            }
++        return bestFit;
++    }
++
+     void insert_merging(Element * e, Element ** m1, Element ** m2) {
+         db<Lists>(TRC) << "Grouping_List::insert_merging(e=" << e << ")" << endl;
+ 
