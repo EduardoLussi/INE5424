@@ -11,7 +11,7 @@
 #define ARCH armv8
 #define MACH cortex
 #define MMOD raspberry_pi3
-#define APPL philosophers_dinner
+#define APPL hello
 #define __mode_library__
 #define __arch_armv8__
 #define __mach_cortex__
