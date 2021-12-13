@@ -31,7 +31,7 @@ public:
         Context() {}
         Context(Log_Addr usp, Log_Addr ulr, Reg flags, Log_Addr  lr, Log_Addr pc): _usp(usp), _ulr(ulr), _flags(flags), _lr(lr), _pc(pc) {
             if(Traits<Build>::hysterically_debugged || Traits<Thread>::trace_idle) {
-                _r0 = 0; _r1 = 1; _r2 = 2; _r3 = 3; _r4 = 4; _r5 = 5; _r6 = 6; _r7 = 7; _r8 = 8; _r9 = 9; _r10 = 10; _r11 = 11; _r12 = 12;
+                _x0 = 0; _x1 = 1; _x2 = 2; _x3 = 3; _x4 = 4; _x5 = 5; _x6 = 6; _x7 = 7; _x8 = 8; _x9 = 9; _x10 = 10; _x11 = 11; _x12 = 12;
             }
         }
 
@@ -39,19 +39,19 @@ public:
         Reg _usp;     // usp (only used in multitasking)
         Reg _ulr;     // ulr (only used in multitasking)
         Reg _flags;
-        Reg _r0;
-        Reg _r1;
-        Reg _r2;
-        Reg _r3;
-        Reg _r4;
-        Reg _r5;
-        Reg _r6;
-        Reg _r7;
-        Reg _r8;
-        Reg _r9;
-        Reg _r10;
-        Reg _r11;
-        Reg _r12;
+        Reg _x0;
+        Reg _x1;
+        Reg _x2;
+        Reg _x3;
+        Reg _x4;
+        Reg _x5;
+        Reg _x6;
+        Reg _x7;
+        Reg _x8;
+        Reg _x9;
+        Reg _x10;
+        Reg _x11;
+        Reg _x12;
         Reg _lr;
         Reg _pc;
     };
@@ -71,8 +71,8 @@ public:
     static Log_Addr sp() { Reg r; ASM("mov %0, sp" : "=r"(r) :); return r; }
     static void sp(Log_Addr sp) { ASM("mov sp, %0" : : "r"(Reg(sp))); ASM("isb"); }
 
-    static Reg fr() { Reg r; ASM("mov %0, r0" : "=r"(r)); return r; }
-    static void fr(Reg r) {  ASM("mov r0, %0" : : "r"(r) : "r0"); }
+    static Reg fr() { Reg r; ASM("mov %0, x0" : "=r"(r)); return r; }
+    static void fr(Reg r) {  ASM("mov x0, %0" : : "r"(r) : "x0"); }
 
     static Log_Addr ra() { Reg r; ASM("mov %0, lr" : "=r"(r) :); return r; } // due to RISC pipelining, PC is read with a +8 (4 for thumb) offset
 
@@ -83,9 +83,9 @@ public:
         register T old;
         register T one = 1;
         ASM("1: ldrexb  %0, [%1]        \n"
-            "   strexb  r3, %2, [%1]    \n"
-            "   cmp     r3, #0          \n"
-            "   bne     1b              \n" : "=&r"(old) : "r"(&lock), "r"(one) : "r3", "cc");
+            "   strexb  x3, %2, [%1]    \n"
+            "   cmp     x3, #0          \n"
+            "   bne     1b              \n" : "=&r"(old) : "r"(&lock), "r"(one) : "x3", "cc");
         return old;
     }
 
@@ -95,21 +95,21 @@ public:
         if(sizeof(T) == sizeof(Reg8))
             ASM("1: ldrexb  %0, [%1]        \n"
                 "   add     %0, #1          \n"
-                "   strexb  r3, %0, [%1]    \n"
-                "   cmp     r3, #0          \n"
-                "   bne     1b              \n" : "=&r"(old) : "r"(&value) : "r3", "cc");
+                "   strexb  x3, %0, [%1]    \n"
+                "   cmp     x3, #0          \n"
+                "   bne     1b              \n" : "=&r"(old) : "r"(&value) : "x3", "cc");
         else if(sizeof(T) == sizeof(Reg16))
             ASM("1: ldrexh  %0, [%1]        \n"
                 "   add     %0, #1          \n"
-                "   strexh  r3, %0, [%1]    \n"
-                "   cmp     r3, #0          \n"
-                "   bne     1b              \n" : "=&r"(old) : "r"(&value) : "r3", "cc");
+                "   strexh  x3, %0, [%1]    \n"
+                "   cmp     x3, #0          \n"
+                "   bne     1b              \n" : "=&r"(old) : "r"(&value) : "x3", "cc");
         else
             ASM("1: ldrex   %0, [%1]        \n"
                 "   add     %0, #1          \n"
-                "   strex   r3, %0, [%1]    \n"
-                "   cmp     r3, #0          \n"
-                "   bne     1b              \n" : "=&r"(old) : "r"(&value) : "r3", "cc");
+                "   strex   x3, %0, [%1]    \n"
+                "   cmp     x3, #0          \n"
+                "   bne     1b              \n" : "=&r"(old) : "r"(&value) : "x3", "cc");
         return old - 1;
     }
 
@@ -119,21 +119,21 @@ public:
         if(sizeof(T) == sizeof(Reg8))
             ASM("1: ldrexb  %0, [%1]        \n"
                 "   sub     %0, #1          \n"
-                "   strexb  r3, %0, [%1]    \n"
-                "   cmp     r3, #0          \n"
-                "   bne     1b              \n" : "=&r"(old) : "r"(&value) : "r3", "cc");
+                "   strexb  x3, %0, [%1]    \n"
+                "   cmp     x3, #0          \n"
+                "   bne     1b              \n" : "=&r"(old) : "r"(&value) : "x3", "cc");
         else if(sizeof(T) == sizeof(Reg16))
             ASM("1: ldrexh  %0, [%1]        \n"
                 "   sub     %0, #1          \n"
-                "   strexh  r3, %0, [%1]    \n"
-                "   cmp     r3, #0          \n"
-                "   bne     1b              \n" : "=&r"(old) : "r"(&value) : "r3", "cc");
+                "   strexh  x3, %0, [%1]    \n"
+                "   cmp     x3, #0          \n"
+                "   bne     1b              \n" : "=&r"(old) : "r"(&value) : "x3", "cc");
         else
             ASM("1: ldrex   %0, [%1]        \n"
                 "   sub     %0, #1          \n"
-                "   strex   r3, %0, [%1]    \n"
-                "   cmp     r3, #0          \n"
-                "   bne     1b              \n" : "=&r"(old) : "r"(&value) : "r3", "cc");
+                "   strex   x3, %0, [%1]    \n"
+                "   cmp     x3, #0          \n"
+                "   bne     1b              \n" : "=&r"(old) : "r"(&value) : "x3", "cc");
         return old + 1;
     }
 
@@ -144,41 +144,41 @@ public:
             ASM("1: ldrexb  %0, [%1]        \n"
                 "   cmp     %0, %2          \n"
                 "   bne     2f              \n"
-                "   strexb  r3, %3, [%1]    \n"
-                "   cmp     r3, #0          \n"
+                "   strexb  x3, %3, [%1]    \n"
+                "   cmp     x3, #0          \n"
                 "   bne     1b              \n"
-                "2:                         \n" : "=&r"(old) : "r"(&value), "r"(compare), "r"(replacement) : "r3", "cc");
+                "2:                         \n" : "=&r"(old) : "r"(&value), "r"(compare), "r"(replacement) : "x3", "cc");
         else if(sizeof(T) == sizeof(Reg16))
             ASM("1: ldrexh  %0, [%1]        \n"
                 "   cmp     %0, %2          \n"
                 "   bne     2f              \n"
-                "   strexh  r3, %3, [%1]    \n"
-                "   cmp     r3, #0          \n"
+                "   strexh  x3, %3, [%1]    \n"
+                "   cmp     x3, #0          \n"
                 "   bne     1b              \n"
-                "2:                         \n" : "=&r"(old) : "r"(&value), "r"(compare), "r"(replacement) : "r3", "cc");
+                "2:                         \n" : "=&r"(old) : "r"(&value), "r"(compare), "r"(replacement) : "x3", "cc");
         else
             ASM("1: ldrex   %0, [%1]        \n"
                 "   cmp     %0, %2          \n"
                 "   bne     2f              \n"
-                "   strex   r3, %3, [%1]    \n"
-                "   cmp     r3, #0          \n"
+                "   strex   x3, %3, [%1]    \n"
+                "   cmp     x3, #0          \n"
                 "   bne     1b              \n"
-                "2:                         \n" : "=&r"(old) : "r"(&value), "r"(compare), "r"(replacement) : "r3", "cc");
+                "2:                         \n" : "=&r"(old) : "r"(&value), "r"(compare), "r"(replacement) : "x3", "cc");
         return old;
     }
 
     // ARMv8 specifics
-    static Reg r0() { Reg r; ASM("mov %0, r0" : "=r"(r) : : ); return r; }
-    static void r0(Reg r) { ASM("mov r0, %0" : : "r"(r): ); }
+    static Reg x0() { Reg r; ASM("mov %0, x0" : "=r"(r) : : ); return r; }
+    static void x0(Reg r) { ASM("mov x0, %0" : : "r"(r): ); }
 
-    static Reg r1() { Reg r; ASM("mov %0, r1" : "=r"(r) : : ); return r; }
-    static void r1(Reg r) { ASM("mov r1, %0" : : "r"(r): ); }
+    static Reg x1() { Reg r; ASM("mov %0, x1" : "=r"(r) : : ); return r; }
+    static void x1(Reg r) { ASM("mov x1, %0" : : "r"(r): ); }
 
     static Reg sctlr() { Reg r; ASM("mrc p15, 0, %0, c1, c0, 0" : "=r"(r)); return r; }
-    static void sctlr(Reg r) {  ASM("mcr p15, 0, %0, c1, c0, 0" : : "r"(r) : "r0"); }
+    static void sctlr(Reg r) {  ASM("mcr p15, 0, %0, c1, c0, 0" : : "r"(r) : "x0"); }
 
     static Reg actlr() { Reg r; ASM("mrc p15, 0, %0, c1, c0, 1" : "=r"(r)); return r; }
-    static void actlr(Reg r) {  ASM("mcr p15, 0, %0, c1, c0, 1" : : "r"(r) : "r0"); }
+    static void actlr(Reg r) {  ASM("mcr p15, 0, %0, c1, c0, 1" : : "r"(r) : "x0"); }
 
     static void dsb() { ASM("dsb"); }
     static void isb() { ASM("isb"); }
@@ -253,8 +253,8 @@ public:
     static Flags flags() { Reg r; ASM("mrs %0, xpsr"       : "=r"(r) :); return r; }
     static void flags(Flags r) {  ASM("msr xpsr_nzcvq, %0" : : "r"(r) : "cc"); }
 
-    static void psr_to_r12() { ASM("mrs r12, xpsr" : : : "r12"); }
-    static void r12_to_psr() {  ASM("msr xpsr_nzcvq, r12" : : : "cc"); }
+    static void psr_to_x12() { ASM("mrs x12, xpsr" : : : "x12"); }
+    static void x12_to_psr() {  ASM("msr xpsr_nzcvq, x12" : : : "cc"); }
 };
 
 class ARMv8_A: public ARMv8
@@ -334,8 +334,11 @@ protected:
     ARMv8_A() {};
 
 public:
-    static Flags flags() { return cpsr(); }
-    static void flags(Flags flags) { cpsr(flags); }
+    /*static Flags flags() { return cpsr(); }
+    static void flags(Flags flags) { cpsr(flags); }*/
+
+    static Flags flags() { return 0; }
+    static void flags(Flags flags) {}
 
     static unsigned int id() {
         Reg id;
@@ -366,27 +369,36 @@ public:
     static void fpu_restore() { ASM("vpop  {s0-s15} \n vpop  {s16-s31}"); }
 
     // ARMv8-A specifics
-    static Reg cpsr() { Reg r; ASM("mrs %0, cpsr" : "=r"(r) : : ); return r; }
+    /*static Reg cpsr() { Reg r; ASM("mrs %0, cpsr" : "=r"(r) : : ); return r; }
     static void cpsr(Reg r) { ASM("msr cpsr, %0" : : "r"(r) : "cc"); }
 
     static Reg cpsrc() { Reg r; ASM("mrs %0, cpsr_c" : "=r"(r) : : ); return r; }
     static void cpsrc(Reg r) { ASM("msr cpsr_c, %0" : : "r"(r): ); }
 
-    static void psr_to_r12() { ASM("mrs r12, cpsr" : : : "r12"); }
-    static void r12_to_psr() { ASM("msr cpsr, r12" : : : "cc"); }
+    static void psr_to_x12() { ASM("mrs x12, cpsr" : : : "x12"); }
+    static void x12_to_psr() { ASM("msr cpsr, x12" : : : "cc"); }*/
+
+    static Reg cpsr() { return 0; }
+    static void cpsr(Reg r) {}
+
+    static Reg cpsrc() { return 0; }
+    static void cpsrc(Reg r) {}
+
+    static void psr_to_x12() {}
+    static void x12_to_psr() {}
 
     static void save_regs(bool ret = false) {
         if(ret)
-            ASM("stmfd sp!, {r0-r3, r12, lr, pc}");
+            ASM("stmfd sp!, {x0-x3, x12, lr, pc}");
         else
-            ASM("stmfd sp!, {r0-r3, r12, lr}");
+            ASM("stmfd sp!, {x0-x3, x12, lr}");
     }
 
     static void restore_regs(bool ret = false) {
         if(ret)
-            ASM("ldmfd   sp!, {r0-r3, r12, lr, pc}^");  // including PC in ldmfd cause a mode change to the mode given by PSR (the mode the CPU was before the interrupt)
+            ASM("ldmfd   sp!, {x0-x3, x12, lr, pc}^");  // including PC in ldmfd cause a mode change to the mode given by PSR (the mode the CPU was before the interrupt)
         else
-            ASM("ldmfd sp!, {r0-r3, r12, lr}");
+            ASM("ldmfd sp!, {x0-x3, x12, lr}");
     }
 
     static void mode(unsigned int m) { ASM("msr cpsr_c, %0" : : "i"(m | FLAG_F | FLAG_I) : "cc"); }
@@ -395,19 +407,19 @@ public:
         mode(MODE_SVC);                 // go to SVC mode to save context
         save_regs(ret);                 // save current context (lr, sp and spsr are banked registers)
         mode(from);                     // go back to mode "from" to recover LR and PSR
-        ASM("sub r1, lr, #4");          // r1 = return address when entering mode "from"
-        ASM("mrs r2, spsr");            // r2 = "from"_spsr (to be visible at SVC)
+        ASM("sub x1, lr, #4");          // x1 = return address when entering mode "from"
+        ASM("mrs x2, spsr");            // x2 = "from"_spsr (to be visible at SVC)
         mode(MODE_SVC);                 // go to SVC mode once again
         if(ret) {                       // if we will return, then
-            ASM("str r1, [sp, #24]");   // overwrite the saved PC with r1, which contains the recovered return address
-            ASM("push {r2}");           // push the recovered PSR
+            ASM("str x1, [sp, #24]");   // overwrite the saved PC with x1, which contains the recovered return address
+            ASM("push {x2}");           // push the recovered PSR
         }
-        // upon return, r1 (LR) and r2 (PSR) are preserved and can be further used
+        // upon return, x1 (LR) and x2 (PSR) are preserved and can be further used
     }
 
     static void svc_leave() {
-        ASM("pop {r2}");            // pop saved mode "from" PSR into SVC_spsr
-        ASM("msr spsr_cfxs, r2");
+        ASM("pop {x2}");            // pop saved mode "from" PSR into SVC_spsr
+        ASM("msr spsr_cfxs, x2");
         restore_regs(true);              // restore the context, eventually changing back to "from" mode and jumping to the saved return address
     }
 
@@ -416,12 +428,12 @@ public:
     static Reg elr_hyp() { Reg r; ASM("mrs %0, ELR_hyp" : "=r"(r) : : ); return r; }
     static void elr_hyp(Reg r) { ASM("msr ELR_hyp, %0" : : "r"(r): ); }
 
-    static void ldmia() { ASM("ldmia r0!,{r2,r3,r4,r5,r6,r7,r8,r9}" : : : ); }
-    static void stmia() { ASM("stmia r1!,{r2,r3,r4,r5,r6,r7,r8,r9}" : : : ); }
+    static void ldmia() { ASM("ldmia x0!,{x2,x3,x4,x5,x6,x7,x8,x9}" : : : ); }
+    static void stmia() { ASM("stmia x1!,{x2,x3,x4,x5,x6,x7,x8,x9}" : : : ); }
 
     // CP15 operations
-    static Reg ttbr0() { Reg r; ASM ("mrc p15, 0, %0, c2, c0, 0" : "=r"(r) : :); return r; }
-    static void ttbr0(Reg r) {  ASM ("mcr p15, 0, %0, c2, c0, 0" : : "p"(r) :); }
+    static Reg ttbx0() { Reg r; ASM ("mrc p15, 0, %0, c2, c0, 0" : "=r"(r) : :); return r; }
+    static void ttbx0(Reg r) {  ASM ("mcr p15, 0, %0, c2, c0, 0" : : "p"(r) :); }
 
     static Reg ttbcr() { Reg r; ASM ("mrc p15, 0, %0, c2, c0, 2" : "=r"(r) : :); return r; }
     static void ttbcr(Reg r) {  ASM ("mcr p15, 0, %0, c2, c0, 2" : : "p"(r) :); }
@@ -429,8 +441,8 @@ public:
     static Reg dacr() { Reg r; ASM ("mrc p15, 0, %0, c3, c0, 0" : "=r"(r) : :); return r; }
     static void dacr(Reg r) {  ASM ("mcr p15, 0, %0, c3, c0, 0" : : "p"(r) :); }
 
-    static Reg pd() { return ttbr0(); }
-    static void pd(Reg r) {  ttbr0(r); }
+    static Reg pd() { return ttbx0(); }
+    static void pd(Reg r) {  ttbx0(r); }
 
     static void flush_tlb() {      ASM("mcr p15, 0, %0, c8, c7, 0" : : "r" (0)); } // TLBIALL - invalidate entire unifed TLB
     static void flush_tlb(Reg r) { ASM("mcr p15, 0, %0, c8, c7, 0" : : "r" (r)); }
@@ -439,44 +451,44 @@ public:
 
     static void flush_caches() {
         ASM("// Disable L1 Caches                                                                       \t\n\
-             mrc     p15, 0, r1, c1, c0, 0      // read SCTLR                                           \t\n\
-             bic     r1, r1, #(0x1 << 2)        // disable D Cache                                      \t\n\
-             mcr     p15, 0, r1, c1, c0, 0      // write SCTLR                                          \t\n\
+             mrc     p15, 0, x1, c1, c0, 0      // read SCTLR                                           \t\n\
+             bic     x1, x1, #(0x1 << 2)        // disable D Cache                                      \t\n\
+             mcr     p15, 0, x1, c1, c0, 0      // write SCTLR                                          \t\n\
                                                                                                         \t\n\
              // Invalidate Data cache, calculating the cache size and looping through each set and way  \t\n\
-             mov     r0, #0x0                   // r0 = 0x0 for L1 dcache 0x2 for L2 dcache             \t\n\
-             mcr     p15, 2, r0, c0, c0, 0      // CSSELR cache size selection Register                 \t\n\
-             mrc     p15, 1, r4, c0, c0, 0      // CCSIDR read cache size                               \t\n\
-             and     r1, r4, #0x7                                                                       \t\n\
-             add     r1, r1, #0x4               // r1 = cache line size                                 \t\n\
-             ldr     r3, =0x7fff                                                                        \t\n\
-             and     r2, r3, r4, lsr #13        // r2 = cache set number - 1                            \t\n\
-             ldr     r3, =0x3ff                                                                         \t\n\
-             and     r3, r3, r4, lsr #3         // r3 = cache associativity number - 1                  \t\n\
-             clz     r4, r3                     // r4 = way position in CISW instruction                \t\n\
-             mov     r5, #0                     // r5 = way loop counter                                \t\n\
+             mov     x0, #0x0                   // x0 = 0x0 for L1 dcache 0x2 for L2 dcache             \t\n\
+             mcr     p15, 2, x0, c0, c0, 0      // CSSELR cache size selection Register                 \t\n\
+             mrc     p15, 1, x4, c0, c0, 0      // CCSIDR read cache size                               \t\n\
+             and     x1, x4, #0x7                                                                       \t\n\
+             add     x1, x1, #0x4               // x1 = cache line size                                 \t\n\
+             ldr     x3, =0x7fff                                                                        \t\n\
+             and     x2, x3, x4, lsr #13        // x2 = cache set number - 1                            \t\n\
+             ldr     x3, =0x3ff                                                                         \t\n\
+             and     x3, x3, x4, lsr #3         // x3 = cache associativity number - 1                  \t\n\
+             clz     x4, x3                     // x4 = way position in CISW instruction                \t\n\
+             mov     x5, #0                     // x5 = way loop counter                                \t\n\
          way_loop:                                                                                      \t\n\
-             mov     r6, #0                     // r6 = set loop counter                                \t\n\
+             mov     x6, #0                     // x6 = set loop counter                                \t\n\
          set_loop:                                                                                      \t\n\
-             orr     r7, r0, r5, lsl r4         // set way                                              \t\n\
-             orr     r7, r7, r6, lsl r1         // set set                                              \t\n\
-             mcr     p15, 0, r7, c7, c6, 2      // DCCISW r7                                            \t\n\
-             add     r6, r6, #1                 // increment set counter                                \t\n\
-             cmp     r6, r2                     // last set reached?                                    \t\n\
+             orr     x7, x0, x5, lsl x4         // set way                                              \t\n\
+             orr     x7, x7, x6, lsl x1         // set set                                              \t\n\
+             mcr     p15, 0, x7, c7, c6, 2      // DCCISW x7                                            \t\n\
+             add     x6, x6, #1                 // increment set counter                                \t\n\
+             cmp     x6, x2                     // last set reached?                                    \t\n\
              ble     set_loop                   // if not, iterate set_loop                             \t\n\
-             add     r5, r5, #1                 // else, next way                                       \t\n\
-             cmp     r5, r3                     // last way reached?                                    \t\n\
+             add     x5, x5, #1                 // else, next way                                       \t\n\
+             cmp     x5, x3                     // last way reached?                                    \t\n\
              ble     way_loop                   // if not, iterate way_loop                                  ");
     }
 
     static void enable_fpu() {
         // This code assumes a compilation with mfloat-abi=hard and does not care for context switches
-        ASM("mrc     p15, 0, r0, c1, c0, 2                                              \t\n\
-             orr     r0, r0, #0x300000           // single precision                    \t\n\
-             orr     r0, r0, #0xc00000           // double precision                    \t\n\
-             mcr     p15, 0, r0, c1, c0, 2                                              \t\n\
-             mov     r0, #0x40000000                                                    \t\n\
-             fmxr    fpexc,r0                                                                ");
+        ASM("mrc     p15, 0, x0, c1, c0, 2                                              \t\n\
+             orr     x0, x0, #0x300000           // single precision                    \t\n\
+             orr     x0, x0, #0xc00000           // double precision                    \t\n\
+             mcr     p15, 0, x0, c1, c0, 2                                              \t\n\
+             mov     x0, #0x40000000                                                    \t\n\
+             fmxr    fpexc,x0                                                                ");
     }
 
 };
@@ -507,24 +519,24 @@ public:
         Context() {}
         Context(Log_Addr entry, Log_Addr exit, Log_Addr usp): Base::Context(entry, exit, usp) {}
 
-        void save() volatile  __attribute__ ((naked));
+        void save() volatile;
         void load() const volatile;
 
         friend Debug & operator<<(Debug & db, const Context & c) {
             db << hex
-               << "{r0="  << c._r0
-               << ",r1="  << c._r1
-               << ",r2="  << c._r2
-               << ",r3="  << c._r3
-               << ",r4="  << c._r4
-               << ",r5="  << c._r5
-               << ",r6="  << c._r6
-               << ",r7="  << c._r7
-               << ",r8="  << c._r8
-               << ",r9="  << c._r9
-               << ",r10=" << c._r10
-               << ",r11=" << c._r11
-               << ",r12=" << c._r12
+               << "{x0="  << c._x0
+               << ",x1="  << c._x1
+               << ",x2="  << c._x2
+               << ",x3="  << c._x3
+               << ",x4="  << c._x4
+               << ",x5="  << c._x5
+               << ",x6="  << c._x6
+               << ",x7="  << c._x7
+               << ",x8="  << c._x8
+               << ",x9="  << c._x9
+               << ",x10=" << c._x10
+               << ",x11=" << c._x11
+               << ",x12=" << c._x12
                << ",sp="  << &c
                << ",lr="  << c._lr
                << ",pc="  << c._pc
@@ -568,13 +580,13 @@ public:
     using ARMv8::fdec;
     using ARMv8::cas;
 
-    static void switch_context(Context ** o, Context * n) __attribute__ ((naked));
+    static void switch_context(Context ** o, Context * n);
 
     template<typename ... Tn>
     static Context * init_stack(Log_Addr usp, Log_Addr sp, void (* exit)(), int (* entry)(Tn ...), Tn ... an) {
         sp -= sizeof(Context);
         Context * ctx = new(sp) Context(entry, exit, usp); // init_stack is called with usp = 0 for kernel threads
-        init_stack_helper(&ctx->_r0, an ...);
+        init_stack_helper(&ctx->_x0, an ...);
         return ctx;
     }
 

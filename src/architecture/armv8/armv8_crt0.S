@@ -9,8 +9,8 @@ _start:
 
 #ifdef __cortex_m__
         // Allocate a temporary stack for INIT, since we don't have a proper SETUP for Cortex-M
-        ldr     r0, =__boot_stack__
-        mov     sp, r0
+        ldr     x0, =__boot_stack__
+        mov     sp, x0
 
         // Clear the BSS
         bl      _clear_bss
@@ -29,6 +29,6 @@ _start:
 __epos_app_entry:
         // Main's stack was allocated by Thread::init()
         bl      main
-        push    {r0}         // save main's return value to be used by exit()
+        str     x0, [sp, #-8]!        // save main's return value to be used by exit()
         bl      _fini
         bl      _exit
