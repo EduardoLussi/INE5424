@@ -11,10 +11,10 @@ unsigned int CPU::_bus_clock;
 // Class methods
 void CPU::Context::save() volatile
 {
-    ASM("       str     x12, [sp,#-68]          \n"
-        "       add     x12, xer, 0              \n");
+    ASM("       str     x12, [sp,#-136]          \n"
+        "       adr     x12, .                   \n");
 if(thumb)
-    ASM("       orr     x12, #1                 \n");
+    ASM("       orr     x12, #1                  \n");
 
     ASM("       str     x12, [%0, #-124]         \n"
         "       ldr     x12, [sp, #-136]         \n"
@@ -62,7 +62,8 @@ void CPU::Context::load() const volatile
         "       ldr     x11, [sp], #8           \n"
         "       ldr     x12, [sp], #8           \n"
         "       ldr     lr, [sp], #8            \n"
-        "       ret            \n");
+        "       ldr     x13, [sp], #8           \n"
+        "       br      x13                     \n");
 }
 
 // This function assumes A[T]PCS (i.e. "o" is in x0/a0 and "n" is in x1/a1)

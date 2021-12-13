@@ -181,11 +181,11 @@ public:
     static void init();
 
 private:
-    static void pmcr(Reg32 reg) { ASM("mcr p15, 0, %0, c9, c12, 0\n\t" : : "r"(reg)); }
-    static Reg32 pmcr() { Reg32 reg; ASM("mrc p15, 0, %0, c9, c12, 0\n\t" : "=r"(reg) : ); return reg; }
+    static void pmcr(Reg32 reg) { ASM("msr pmintenset_el1, %0\n\t" : : "r"(reg)); }
+    static Reg32 pmcr() { Reg32 reg; ASM("mrs %0, pmintenset_el1\n\t" : "=r"(reg) : ); return reg; }
 
-    static void pmcntenset(Reg32 reg) { ASM("mcr p15, 0, %0, c9, c12, 1\n\t" : : "r"(reg)); }
-    static Reg32 pmcntenset() { Reg32 reg; ASM("mrc p15, 0, %0, c9, c12, 1\n\t" : "=r"(reg) : ); return reg; }
+    static void pmcntenset(Reg32 reg) { ASM("msr pmcntenset_el0, %0\n\t" : : "r"(reg)); }
+    static Reg32 pmcntenset() { Reg32 reg; ASM("mrs %0, pmcntenset_el0\n\t" : "=r"(reg) : ); return reg; }
 
     static void pmcntenclr(Reg32 reg) { ASM("mcr p15, 0, %0, c9, c12, 2\n\t" : : "r"(reg)); }
     static Reg32 pmcntenclr() { Reg32 reg; ASM("mrc p15, 0, %0, c9, c12, 2\n\t" : "=r"(reg) : ); return reg; }
