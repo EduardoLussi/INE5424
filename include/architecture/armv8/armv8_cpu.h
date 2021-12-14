@@ -80,19 +80,19 @@ public:
 
     template<typename T>
     static T tsl(volatile T & lock) {
-        register T old;
-        register T one = 1;
-        ASM("1: ldrexb  %0, [%1]        \n"
+        register T old = 0;
+        //register T one = 1;
+        /*ASM("1: ldrexb  %0, [%1]        \n"
             "   strexb  x3, %2, [%1]    \n"
             "   cmp     x3, #0          \n"
-            "   bne     1b              \n" : "=&r"(old) : "r"(&lock), "r"(one) : "x3", "cc");
+            "   bne     1b              \n" : "=&r"(old) : "r"(&lock), "r"(one) : "x3", "cc");*/
         return old;
     }
 
     template<typename T>
     static T finc(volatile T & value) {
-        register T old;
-        if(sizeof(T) == sizeof(Reg8))
+        register T old = 0;
+        /*if(sizeof(T) == sizeof(Reg8))
             ASM("1: ldrexb  %0, [%1]        \n"
                 "   add     %0, #1          \n"
                 "   strexb  x3, %0, [%1]    \n"
@@ -109,14 +109,14 @@ public:
                 "   add     %0, #1          \n"
                 "   strex   x3, %0, [%1]    \n"
                 "   cmp     x3, #0          \n"
-                "   bne     1b              \n" : "=&r"(old) : "r"(&value) : "x3", "cc");
+                "   bne     1b              \n" : "=&r"(old) : "r"(&value) : "x3", "cc");*/
         return old - 1;
     }
 
     template<typename T>
     static T fdec(volatile T & value) {
-        register T old;
-        if(sizeof(T) == sizeof(Reg8))
+        register T old = 0;
+        /*if(sizeof(T) == sizeof(Reg8))
             ASM("1: ldrexb  %0, [%1]        \n"
                 "   sub     %0, #1          \n"
                 "   strexb  x3, %0, [%1]    \n"
@@ -133,14 +133,14 @@ public:
                 "   sub     %0, #1          \n"
                 "   strex   x3, %0, [%1]    \n"
                 "   cmp     x3, #0          \n"
-                "   bne     1b              \n" : "=&r"(old) : "r"(&value) : "x3", "cc");
+                "   bne     1b              \n" : "=&r"(old) : "r"(&value) : "x3", "cc");*/
         return old + 1;
     }
 
     template <typename T>
     static T cas(volatile T & value, T compare, T replacement) {
-        register T old;
-        if(sizeof(T) == sizeof(Reg8))
+        register T old = 0;
+        /*if(sizeof(T) == sizeof(Reg8))
             ASM("1: ldrexb  %0, [%1]        \n"
                 "   cmp     %0, %2          \n"
                 "   bne     2f              \n"
@@ -163,7 +163,7 @@ public:
                 "   strex   x3, %3, [%1]    \n"
                 "   cmp     x3, #0          \n"
                 "   bne     1b              \n"
-                "2:                         \n" : "=&r"(old) : "r"(&value), "r"(compare), "r"(replacement) : "x3", "cc");
+                "2:                         \n" : "=&r"(old) : "r"(&value), "r"(compare), "r"(replacement) : "x3", "cc");*/
         return old;
     }
 
@@ -174,13 +174,13 @@ public:
     static Reg x1() { Reg r; ASM("mov %0, x1" : "=r"(r) : : ); return r; }
     static void x1(Reg r) { ASM("mov x1, %0" : : "r"(r): ); }
 
-    static Reg sctlr() { Reg r; ASM("mrc p15, 0, %0, c1, c0, 0" : "=r"(r)); return r; }
-    static void sctlr(Reg r) {  ASM("mcr p15, 0, %0, c1, c0, 0" : : "r"(r) : "x0"); }
+    static Reg sctlr() { Reg r; ASM("mrs %0, sctlr_el1" : "=r"(r)); return r; }
+    static void sctlr(Reg r) {  ASM("msr sctlr_el1, %0" : : "r"(r) : "x0"); }
 
-    static Reg actlr() { Reg r; ASM("mrc p15, 0, %0, c1, c0, 1" : "=r"(r)); return r; }
-    static void actlr(Reg r) {  ASM("mcr p15, 0, %0, c1, c0, 1" : : "r"(r) : "x0"); }
+    static Reg actlr() { Reg r; ASM("mrs %0, actlr_el1" : "=r"(r)); return r; }
+    static void actlr(Reg r) {  ASM("msr actlr_el1, %0" : : "r"(r) : "x0"); }
 
-    static void dsb() { ASM("dsb"); }
+    static void dsb() { /*ASM("dsb");*/ }
     static void isb() { ASM("isb"); }
 
     static void svc() { ASM("svc 0x0"); }
@@ -341,8 +341,8 @@ public:
     static void flags(Flags flags) {}
 
     static unsigned int id() {
-        Reg id;
-        ASM("mrc p15, 0, %0, c0, c0, 5" : "=r"(id) : : );
+        Reg id = 0;
+        //ASM("mrc p15, 0, %0, c0, c0, 5" : "=r"(id) : : );
         return id & 0x3;
     }
 
@@ -350,9 +350,9 @@ public:
         if(Traits<Build>::MODEL == Traits<Build>::Raspberry_Pi3) {
             return Traits<Build>::CPUS;
         } else {
-            Reg n;
-            ASM("mrc p15, 4, %0, c15, c0, 0 \t\n\
-                 ldr %0, [%0, #0x004]" : "=r"(n) : : );
+            Reg n = 0;
+            /*ASM("mrc p15, 4, %0, c15, c0, 0 \t\n\
+                 ldr %0, [%0, #0x004]" : "=r"(n) : : );*/
             return (n & 0x3) + 1;
         }
     }
@@ -401,7 +401,7 @@ public:
             ASM("ldmfd sp!, {x0-x3, x12, lr}");
     }
 
-    static void mode(unsigned int m) { ASM("msr cpsr_c, %0" : : "i"(m | FLAG_F | FLAG_I) : "cc"); }
+    static void mode(unsigned int m) { /*ASM("msr cpsr_c, %0" : : "i"(m | FLAG_F | FLAG_I) : "cc");*/ }
 
     static void svc_enter(unsigned int from, bool ret = true) {
         mode(MODE_SVC);                 // go to SVC mode to save context
@@ -428,28 +428,28 @@ public:
     static Reg elr_hyp() { Reg r; ASM("mrs %0, ELR_hyp" : "=r"(r) : : ); return r; }
     static void elr_hyp(Reg r) { ASM("msr ELR_hyp, %0" : : "r"(r): ); }
 
-    static void ldmia() { ASM("ldmia x0!,{x2,x3,x4,x5,x6,x7,x8,x9}" : : : ); }
-    static void stmia() { ASM("stmia x1!,{x2,x3,x4,x5,x6,x7,x8,x9}" : : : ); }
+    static void ldmia() { /*ASM("ldmia x0!,{x2,x3,x4,x5,x6,x7,x8,x9}" : : : ); */}
+    static void stmia() { /*ASM("stmia x1!,{x2,x3,x4,x5,x6,x7,x8,x9}" : : : );*/ }
 
     // CP15 operations
-    static Reg ttbx0() { Reg r; ASM ("mrc p15, 0, %0, c2, c0, 0" : "=r"(r) : :); return r; }
-    static void ttbx0(Reg r) {  ASM ("mcr p15, 0, %0, c2, c0, 0" : : "p"(r) :); }
+    static Reg ttbr0() { Reg r; ASM ("mrs %0, ttbr0_el1" : "=r"(r) : :); return r; }
+    static void ttbr0(Reg r) {  ASM ("msr ttbr0_el1, %0" : : "p"(r) :); }
 
-    static Reg ttbcr() { Reg r; ASM ("mrc p15, 0, %0, c2, c0, 2" : "=r"(r) : :); return r; }
-    static void ttbcr(Reg r) {  ASM ("mcr p15, 0, %0, c2, c0, 2" : : "p"(r) :); }
+    static Reg ttbcr() { Reg r; ASM ("mrs %0, vtcr_el2" : "=r"(r) : :); return r; }
+    static void ttbcr(Reg r) {  ASM ("msr vtcr_el2, %0" : : "p"(r) :); }
 
-    static Reg dacr() { Reg r; ASM ("mrc p15, 0, %0, c3, c0, 0" : "=r"(r) : :); return r; }
-    static void dacr(Reg r) {  ASM ("mcr p15, 0, %0, c3, c0, 0" : : "p"(r) :); }
+    static Reg dacr() { Reg r; ASM ("mrs %0, dacr32_el2" : "=r"(r) : :); return r; }
+    static void dacr(Reg r) {  ASM ("msr dacr32_el2, %0" : : "p"(r) :); }
 
-    static Reg pd() { return ttbx0(); }
-    static void pd(Reg r) {  ttbx0(r); }
+    static Reg pd() { return ttbr0(); }
+    static void pd(Reg r) {  ttbr0(r); }
 
-    static void flush_tlb() {      ASM("mcr p15, 0, %0, c8, c7, 0" : : "r" (0)); } // TLBIALL - invalidate entire unifed TLB
-    static void flush_tlb(Reg r) { ASM("mcr p15, 0, %0, c8, c7, 0" : : "r" (r)); }
+    static void flush_tlb() {      /*ASM("mcr p15, 0, %0, c8, c7, 0" : : "r" (0));*/ } // TLBIALL - invalidate entire unifed TLB
+    static void flush_tlb(Reg r) { /*ASM("mcr p15, 0, %0, c8, c7, 0" : : "r" (r));*/ }
 
-    static void flush_branch_predictors() { ASM("mcr p15, 0, %0, c7, c5, 6" : : "r" (0)); }
+    static void flush_branch_predictors() { /*ASM("mcr p15, 0, %0, c7, c5, 6" : : "r" (0));*/ }
 
-    static void flush_caches() {
+    static void flush_caches() {/*
         ASM("// Disable L1 Caches                                                                       \t\n\
              mrc     p15, 0, x1, c1, c0, 0      // read SCTLR                                           \t\n\
              bic     x1, x1, #(0x1 << 2)        // disable D Cache                                      \t\n\
@@ -478,17 +478,17 @@ public:
              ble     set_loop                   // if not, iterate set_loop                             \t\n\
              add     x5, x5, #1                 // else, next way                                       \t\n\
              cmp     x5, x3                     // last way reached?                                    \t\n\
-             ble     way_loop                   // if not, iterate way_loop                                  ");
+             ble     way_loop                   // if not, iterate way_loop                                  ");*/
     }
 
-    static void enable_fpu() {
+    static void enable_fpu() {/*
         // This code assumes a compilation with mfloat-abi=hard and does not care for context switches
         ASM("mrc     p15, 0, x0, c1, c0, 2                                              \t\n\
              orr     x0, x0, #0x300000           // single precision                    \t\n\
              orr     x0, x0, #0xc00000           // double precision                    \t\n\
              mcr     p15, 0, x0, c1, c0, 2                                              \t\n\
              mov     x0, #0x40000000                                                    \t\n\
-             fmxr    fpexc,x0                                                                ");
+             fmxr    fpexc,x0                                                                ");*/
     }
 
 };

@@ -232,7 +232,7 @@ public:
         mailbox(MBOX_WC + cpu_base + 4)  = 1 << 31; // ACK From CPU1
         mailbox(MBOX_WC + cpu_base + 8)  = 1 << 31; // ACK From CPU2
         mailbox(MBOX_WC + cpu_base + 12) = 1 << 31; // ACK From CPU3
-        ASM("dsb \t\n isb");
+        //ASM("dsb \t\n isb");
     }
 
     void init(void) {

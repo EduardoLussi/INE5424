@@ -10,8 +10,8 @@ extern "C" {
     void _bss_clear();
 
     // SETUP entry point is the Vector Table and resides in the .init section (not in .text), so it will be linked first and will be the first function after the ELF header in the image.
-    void _entry() __attribute__ ((used, naked, section(".init")));
-    void _reset() __attribute__ ((naked)); // so it can be safely reached from the vector table
+    void _entry() __attribute__ ((used, section(".init")));
+    void _reset(); // so it can be safely reached from the vector table
     void _setup(); // just to create a Setup object
 
     // LD eliminates this variable while performing garbage collection, so --undefined=__boot_time_system_info must be present while linking
@@ -64,7 +64,7 @@ private:
     typedef System_Info::Load_Map LM;
 
 private:
-    // TTBR0 Page Table Entry Descriptor for Sections configuration --> One level translation for Flat Mapping
+    // TTBx0 Page Table Entry Descriptor for Sections configuration --> One level translation for Flat Mapping
     enum {
         TTB_MEMORY_DESCRIPTOR           = 0x90c0e,
         TTB_DEVICE_DESCRIPTOR           = 0x90c0a,
@@ -460,13 +460,13 @@ void Setup::say_hi()
     if(!si->lm.has_sys)
         db<Setup>(INF) << "No SYSTEM in boot image, assuming EPOS is a library!" << endl;
 
-    kout << "Setting up this machine as follows: " << endl;
+    /*kout << "Setting up this machine as follows: " << endl;
     kout << "  Mode:         " << ((Traits<Build>::MODE == Traits<Build>::LIBRARY) ? "library" : (Traits<Build>::MODE == Traits<Build>::BUILTIN) ? "built-in" : "kernel") << endl;
     kout << "  Processor:    " << Traits<Machine>::CPUS << " x Cortex A53 at " << Traits<CPU>::CLOCK / 1000000 << " MHz (BUS clock = " << Traits<CPU>::CLOCK / 1000000 << " MHz)" << endl;
     kout << "  Memory:       " << (si->bm.mem_top - si->bm.mem_base) / 1024 << " KB [" << (void *)si->bm.mem_base << ":" << (void *)si->bm.mem_top << "]" << endl;
     kout << "  User memory:  " << (si->pmm.usr_mem_top - si->pmm.usr_mem_base) / 1024 << " KB [" << (void *)si->pmm.usr_mem_base << ":" << (void *)si->pmm.usr_mem_top << "]" << endl;
     kout << "  I/O space:    " << (si->bm.mio_top - si->bm.mio_base) / 1024 << " KB [" << (void *)si->bm.mio_base << ":" << (void *)si->bm.mio_top << "]" << endl;
-    kout << "  Node Id:      ";
+    kout << "  Node Id:      ";*/
     if(si->bm.node_id != -1)
         kout << si->bm.node_id << " (" << Traits<Build>::NODES << ")" << endl;
     else
@@ -505,14 +505,14 @@ void Setup::setup_pt(PT_Entry * pts, Phy_Addr base, unsigned int size, unsigned 
 
 void Setup::setup_sys_pt()
 {
-    db<Setup>(TRC) << "Setup::setup_sys_pt(pmm="
+    /*db<Setup>(TRC) << "Setup::setup_sys_pt(pmm="
                    << "{si="      << (void *)si->pmm.sys_info
                    << ",pt="      << (void *)si->pmm.sys_pt
                    << ",pd="      << (void *)si->pmm.sys_pd
                    << ",sysc={b=" << (void *)si->pmm.sys_code << ",s=" << MMU::pages(si->lm.sys_code_size) << "}"
                    << ",sysd={b=" << (void *)si->pmm.sys_data << ",s=" << MMU::pages(si->lm.sys_data_size) << "}"
                    << ",syss={b=" << (void *)si->pmm.sys_stack << ",s=" << MMU::pages(si->lm.sys_stack_size) << "}"
-                   << "})" << endl;
+                   << "})" << endl;*/
 
     // Get the physical address for the SYSTEM Page Table
     PT_Entry * sys_pt = reinterpret_cast<PT_Entry *>(si->pmm.sys_pt);
@@ -551,10 +551,10 @@ void Setup::setup_sys_pt()
 
 void Setup::setup_app_pt()
 {
-    db<Setup>(TRC) << "Setup::setup_app_pt(appc={b=" << (void *)si->pmm.app_code << ",s=" << MMU::pages(si->lm.app_code_size) << "}"
+    /*db<Setup>(TRC) << "Setup::setup_app_pt(appc={b=" << (void *)si->pmm.app_code << ",s=" << MMU::pages(si->lm.app_code_size) << "}"
                    << ",appd={b=" << (void *)si->pmm.app_data << ",s=" << MMU::pages(si->lm.app_data_size) << "}"
                    << ",appe={b=" << (void *)si->pmm.app_extra << ",s=" << MMU::pages(si->lm.app_extra_size) << "}"
-                   << "})" << endl;
+                   << "})" << endl;*/
 
     // Get the physical address for the first APPLICATION Page Tables
     PT_Entry * app_code_pt = reinterpret_cast<PT_Entry *>(si->pmm.app_code_pts);
@@ -576,7 +576,7 @@ void Setup::setup_app_pt()
 
 void Setup::setup_sys_pd()
 {
-    db<Setup>(TRC) << "setup_sys_pd(bm="
+    /*db<Setup>(TRC) << "setup_sys_pd(bm="
                    << "{memb="  << (void *)si->bm.mem_base
                    << ",memt="  << (void *)si->bm.mem_top
                    << ",miob="  << (void *)si->bm.mio_base
@@ -593,11 +593,11 @@ void Setup::setup_sys_pd()
                    << ",syss="  << (void *)si->pmm.sys_stack
                    << ",apct="  << (void *)si->pmm.app_code_pts
                    << ",apdt="  << (void *)si->pmm.app_data_pts
-                   << ",fr1b="  << (void *)si->pmm.free1_base
-                   << ",fr1t="  << (void *)si->pmm.free1_top
-                   << ",fr2b="  << (void *)si->pmm.free2_base
-                   << ",fr2t="  << (void *)si->pmm.free2_top
-                   << "})" << endl;
+                   << ",fx1b="  << (void *)si->pmm.free1_base
+                   << ",fx1t="  << (void *)si->pmm.free1_top
+                   << ",fx2b="  << (void *)si->pmm.free2_base
+                   << ",fx2t="  << (void *)si->pmm.free2_top
+                   << "})" << endl;*/
 
     // Get the physical address for the System Page Directory
     PT_Entry * sys_pd = reinterpret_cast<PT_Entry *>(si->pmm.sys_pd);
@@ -608,7 +608,7 @@ void Setup::setup_sys_pd()
     // Calculate the number of page tables needed to map the physical memory
     unsigned int mem_size = MMU::pages(si->bm.mem_top - si->bm.mem_base);
     unsigned int n_pts = MMU::page_tables(mem_size);
-    db<Setup>(INF) << "mem_size="<< mem_size << ",n_pts=" << n_pts << (void *) si->pmm.phy_mem_pts << ",syspd=" << (void *) si->pmm.sys_pd << "Size pte=" << sizeof(PT_Entry) << endl;
+    //db<Setup>(INF) << "mem_size="<< mem_size << ",n_pts=" << n_pts << (void *) si->pmm.phy_mem_pts << ",syspd=" << (void *) si->pmm.sys_pd << "Size pte=" << sizeof(PT_Entry) << endl;
     // Map the whole physical memory into the page tables pointed by phy_mem_pts
     PT_Entry * pts = reinterpret_cast<PT_Entry *>(si->pmm.phy_mem_pts);
 
@@ -616,7 +616,7 @@ void Setup::setup_sys_pd()
 
     setup_pt(pts, si->bm.mem_base, mem_size, n_pts, Flags::SYS);
 
-    db<Setup>(INF) << "PHY_MEM_PT("<< (void *) pts <<")=" << *reinterpret_cast<Page_Table *>(pts) << endl; // if this print is removed, the config goes wrong
+    //db<Setup>(INF) << "PHY_MEM_PT("<< (void *) pts <<")=" << *reinterpret_cast<Page_Table *>(pts) << endl; // if this print is removed, the config goes wrong
     db<Setup>(INF) << "mem_size="<< mem_size <<",n_pts=" << n_pts << endl;
 
     db<Setup>(INF) << "pts done" << endl;
@@ -656,10 +656,10 @@ void Setup::setup_sys_pd()
         sys_pd[i] = MMU::phy2pde((si->pmm.io_pts + j * sizeof(Page_Table)));
     db<Setup>(INF) << "sys pd for io pts done" << endl;
 
-    db<Setup>(INF) << "attach SYS pt on sys pd[sys]:" << MMU::directory(SYS) 
+   /* db<Setup>(INF) << "attach SYS pt on sys pd[sys]:" << MMU::directory(SYS) 
                     << ", with sys_pt[0] = " <<  hex << *((int *) si->pmm.sys_pt) << endl;
     db<Setup>(INF) << "sys_pd[sys+1];" << MMU::directory(SYS)+1 
-                    << ", with sys_pt[1] = " << hex << *((int *) (si->pmm.sys_pt+sizeof(Page_Table))) << endl;
+                    << ", with sys_pt[1] = " << hex << *((int *) (si->pmm.sys_pt+sizeof(Page_Table))) << endl;*/
     // Attach the OS (i.e. sys_pt)
     // One sys_pt for code
     sys_pd[MMU::directory(SYS)] = MMU::phy2pde(si->pmm.sys_pt);
@@ -695,9 +695,9 @@ void Setup::enable_paging()
     CPU::dsb();
     CPU::isb();
 
-    // Clear TTBCR for the system to use ttbr0 instead of 1
+    // Clear TTBCR for the system to use ttbx0 instead of 1
     CPU::ttbcr(0);
-    // Set ttbr0 with base address
+    // Set ttbx0 with base address
     CPU::ttbr0((Traits<System>::multitask) ? si->pmm.sys_pd : PAGE_TABLES);
 
     // Enable MMU through SCTLR and ACTLR
@@ -810,10 +810,10 @@ void Setup::load_parts()
 
 void Setup::adjust_perms()
 {
-    db<Setup>(TRC) << "Setup::adjust_perms(appc={b=" << (void *)si->pmm.app_code << ",s=" << MMU::pages(si->lm.app_code_size) << "}"
+    /*db<Setup>(TRC) << "Setup::adjust_perms(appc={b=" << (void *)si->pmm.app_code << ",s=" << MMU::pages(si->lm.app_code_size) << "}"
                    << ",appd={b=" << (void *)si->pmm.app_data << ",s=" << MMU::pages(si->lm.app_data_size) << "}"
                    << ",appe={b=" << (void *)si->pmm.app_extra << ",s=" << MMU::pages(si->lm.app_extra_size) << "}"
-                   << "})" << endl;
+                   << "})" << endl;*/
 
 
     // Get the logical address of the first APPLICATION Page Tables
@@ -843,7 +843,7 @@ void Setup::call_next()
         if(si->lm.has_ini) {
             if(cpu_id == 0) {
                 db<Setup>(TRC) << "Executing system's global constructors ..." << endl;
-                reinterpret_cast<void (*)()>((void *)si->lm.sys_entry)();
+                //reinterpret_cast<void (*)()>((void *)si->lm.sys_entry)();
             }
             ip = si->lm.ini_entry;
         } else if(si->lm.has_sys)
@@ -890,16 +890,16 @@ void _entry()
 {
     // Interrupt Vector Table
     // We use and indirection table for the ldr instructions because the offset can be to far from the PC to be encoded
-    ASM("               ldr pc, reset                                           \t\n\
-                        ldr pc, ui                                              \t\n\
-                        ldr pc, si                                              \t\n\
-                        ldr pc, pa                                              \t\n\
-                        ldr pc, da                                              \t\n\
+    ASM("               b reset                                           \t\n\
+                        b ui                                              \t\n\
+                        b si                                              \t\n\
+                        b pa                                              \t\n\
+                        b da                                              \t\n\
                         nop             // _reserved                            \t\n\
-                        ldr pc, irq                                             \t\n\
-                        ldr pc, fiq                                             \t\n\
+                        b irq                                             \t\n\
+                        b fiq                                             \t\n\
                                                                                 \t\n\
-                        .balign 32                                              \t\n\
+                        .balign 64                                              \t\n\
         reset:          .word _reset                                            \t\n\
         ui:             .word 0x0                                               \t\n\
         si:             .word 0x0                                               \t\n\
@@ -919,7 +919,7 @@ void _reset()
         CPU::cpsrc(cpsr);               // enter supervisor mode
         CPU::Reg address = CPU::ra();
         CPU::elr_hyp(address);
-        CPU::r12_to_psr();
+        CPU::x12_to_psr();
     }
 
     // Configure a stack for SVC mode, which will be used until the first Thread is created
@@ -928,13 +928,13 @@ void _reset()
 
     if(CPU::id() == 0) {
         // After a reset, we copy the vector table to 0x0000 to get a cleaner memory map (it is originally at 0x8000)
-        // An alternative would be to set vbar address via mrc p15, 0, r1, c12, c0, 0
-        CPU::r0(reinterpret_cast<CPU::Reg>(&_entry)); // load r0 with the source pointer
-        CPU::r1(Memory_Map::VECTOR_TABLE); // load r1 with the destination pointer
+        // An alternative would be to set vbar address via mrc p15, 0, x1, c12, c0, 0
+        CPU::x0(reinterpret_cast<CPU::Reg>(&_entry)); // load x0 with the source pointer
+        CPU::x1(Memory_Map::VECTOR_TABLE); // load x1 with the destination pointer
 
         // Copy the first 32 bytes
-        CPU::ldmia(); // load multiple registers from the memory pointed by r0 and auto-increment it accordingly
-        CPU::stmia(); // store multiple registers to the memory pointed by r1 and auto-increment it accordingly
+        CPU::ldmia(); // load multiple registers from the memory pointed by x0 and auto-increment it accordingly
+        CPU::stmia(); // store multiple registers to the memory pointed by x1 and auto-increment it accordingly
 
         // Repeat to copy the subsequent 32 bytes
         CPU::ldmia();

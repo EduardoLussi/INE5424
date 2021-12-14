@@ -181,26 +181,26 @@ public:
     static void init();
 
 private:
-    static void pmcr(Reg32 reg) { ASM("msr pmintenset_el1, %0\n\t" : : "r"(reg)); }
-    static Reg32 pmcr() { Reg32 reg; ASM("mrs %0, pmintenset_el1\n\t" : "=r"(reg) : ); return reg; }
+    static void pmcr(Reg32 reg) { ASM("msr pmcr_el0, %0\n\t" : : "r"(reg)); }
+    static Reg32 pmcr() { Reg32 reg; ASM("mrs %0, pmcr_el0\n\t" : "=r"(reg) : ); return reg; }
 
     static void pmcntenset(Reg32 reg) { ASM("msr pmcntenset_el0, %0\n\t" : : "r"(reg)); }
     static Reg32 pmcntenset() { Reg32 reg; ASM("mrs %0, pmcntenset_el0\n\t" : "=r"(reg) : ); return reg; }
 
-    static void pmcntenclr(Reg32 reg) { ASM("mcr p15, 0, %0, c9, c12, 2\n\t" : : "r"(reg)); }
-    static Reg32 pmcntenclr() { Reg32 reg; ASM("mrc p15, 0, %0, c9, c12, 2\n\t" : "=r"(reg) : ); return reg; }
+    static void pmcntenclr(Reg32 reg) { ASM("msr pmcntenclr_el0, %0\n\t" : : "r"(reg)); }
+    static Reg32 pmcntenclr() { Reg32 reg; ASM("mrs %0, pmcntenclr_el0\n\t" : "=r"(reg) : ); return reg; }
 
-    static void pmovsr(Reg32 reg) { ASM("mcr p15, 0, %0, c9, c12, 3\n\t" : : "r"(reg)); }
-    static Reg32 pmovsr() { Reg32 reg; ASM("mrc p15, 0, %0, c9, c12, 3\n\t" : "=r"(reg) : ); return reg; }
+    static void pmovsr(Reg32 reg) { ASM("msr PMOVSSET_EL0, %0\n\t" : : "r"(reg)); }
+    static Reg32 pmovsr() { Reg32 reg; ASM("mrs %0, PMOVSSET_EL0\n\t" : "=r"(reg) : ); return reg; }
 
-    static void pmselr(Reg32 reg) { ASM("mcr p15, 0, %0, c9, c12, 5\n\t" : : "r"(reg)); }
-    static Reg32 pmselr() { Reg32 reg; ASM("mrc p15, 0, %0, c9, c12, 5\n\t" : "=r"(reg) : ); return reg; }
+    static void pmselr(Reg32 reg) { ASM("mrs pmselr_el0, %0\n\t" : : "r"(reg)); }
+    static Reg32 pmselr() { Reg32 reg; ASM("msr %0, pmselr_el0\n\t" : "=r"(reg) : ); return reg; }
 
-    static void pmxevtyper(const Reg32 reg) { ASM("mcr p15, 0, %0, c9, c13, 1\n\t" : : "r"(reg)); }
-    static Reg32 pmxevtyper() { Reg32 reg; ASM("mrc p15, 0, %0, c9, c13, 1\n\t" : "=r"(reg) : ); return reg; }
+    static void pmxevtyper(const Reg32 reg) { ASM("msr pmxevtyper_el0, %0\n\t" : : "r"(reg)); }
+    static Reg32 pmxevtyper() { Reg32 reg; ASM("mrs %0, pmxevtyper_el0\n\t" : "=r"(reg) : ); return reg; }
 
-    static void pmxevcntr(Reg32 reg) { ASM("mcr p15, 0, %0, c9, c13, 2\n\t" : : "r"(reg)); }
-    static Reg32 pmxevcntr() { Reg32 reg; ASM("mrc p15, 0, %0, c9, c13, 2\n\t" : "=r"(reg) : ); return reg; }
+    static void pmxevcntr(Reg32 reg) { ASM("msr pmxevcntr_el0, %0\n\t" : : "r"(reg)); }
+    static Reg32 pmxevcntr() { Reg32 reg; ASM("mrs %0, pmxevcntr_el0\n\t" : "=r"(reg) : ); return reg; }
 
 private:
     static const Event _events[EVENTS];
