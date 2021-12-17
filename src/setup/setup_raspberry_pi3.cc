@@ -888,78 +888,73 @@ using namespace EPOS::S;
 
 void _entry()
 {
-    // Interrupt Vector Table
-    // We use and indirection table for the ldr instructions because the offset can be to far from the PC to be encoded
-    ASM("               b reset                                           \t\n\
-                        b ui                                              \t\n\
-                        b si                                              \t\n\
-                        b pa                                              \t\n\
-                        b da                                              \t\n\
-                        nop             // _reserved                            \t\n\
-                        b irq                                             \t\n\
-                        b fiq                                             \t\n\
-                                                                                \t\n\
-                        .balign 64                                              \t\n\
-        reset:          .word _reset                                            \t\n\
-        ui:             .word 0x0                                               \t\n\
-        si:             .word 0x0                                               \t\n\
-        pa:             .word 0x0                                               \t\n\
-        da:             .word 0x0                                               \t\n\
-        irq:            .word 0x0                                               \t\n\
-        fiq:            .word 0x0                                               ");
+    // Vector Table
+    ASM("ldr x1, =vector_table_el2              \t\n\
+         msr vbar_el2, x1                       \t\n\
+         msr vbar_el1, x1                       \t\n\
+         mov sp, %0                             \t\n\
+         isb                                    \t\n\
+         b _reset                               \t\n\
+                                                \t\n\
+         .balign 0x800                          \t\n\
+         vector_table_el2:                      \t\n\
+         curr_el_sp0_sync:          .word 0x0   \t\n\
+                                                \t\n\
+         .balign 0x80                           \t\n\
+         curr_el_sp0_irq:           .word 0x0   \t\n\
+                                                \t\n\
+         .balign 0x80                           \t\n\
+         curr_el_sp0_fiq:           .word 0x0   \t\n\
+                                                \t\n\
+         .balign 0x80                           \t\n\
+         curr_el_sp0_serror:        .word 0x0   \t\n\
+                                                \t\n\
+         .balign 0x80                           \t\n\
+         curr_el_spx_sync:          .word 0x0   \t\n\
+                                                \t\n\
+         .balign 0x80                           \t\n\
+         curr_el_spx_irq:           .word 0x0   \t\n\
+                                                \t\n\
+         .balign 0x80                           \t\n\
+         curr_el_spx_fiq:           .word 0x0   \t\n\
+                                                \t\n\
+         .balign 0x80                           \t\n\
+         curr_el_spx_serror:        .word 0x0   \t\n\
+                                                \t\n\
+         .balign 0x80                           \t\n\
+         lower_el_aarch64_sync:     .word 0x0   \t\n\
+                                                \t\n\
+         .balign 0x80                           \t\n\
+         lower_el_aarch64_irq:      .word 0x0   \t\n\
+                                                \t\n\
+         .balign 0x80                           \t\n\
+         lower_el_aarch64_fiq:      .word 0x0   \t\n\
+                                                \t\n\
+         .balign 0x80                           \t\n\
+         lower_el_aarch64_serror:   .word 0x0        " : : "r"(CPU::Reg(Traits<Machine>::BOOT_STACK + Traits<Machine>::STACK_SIZE * CPU::id())));
+
 }
 
 void _reset()
 {
-    // QEMU get us here in SVC mode with interrupt disabled, but the real Raspberry Pi3 starts in hypervisor mode, so we must switch to SVC mode
-    if(!Traits<Machine>::SIMULATED) {
-        CPU::Reg cpsr = CPU::cpsr();
-        cpsr &= ~CPU::FLAG_M;           // clear mode bits
-        cpsr |= CPU::MODE_SVC;          // set supervisor flag
-        CPU::cpsrc(cpsr);               // enter supervisor mode
-        CPU::Reg address = CPU::ra();
-        CPU::elr_hyp(address);
-        CPU::x12_to_psr();
-    }
-
-    // Configure a stack for SVC mode, which will be used until the first Thread is created
-    CPU::mode(CPU::MODE_SVC); // enter SVC mode (with interrupts disabled)
-    CPU::sp(Traits<Machine>::BOOT_STACK + Traits<Machine>::STACK_SIZE * CPU::id());
-
-    if(CPU::id() == 0) {
-        // After a reset, we copy the vector table to 0x0000 to get a cleaner memory map (it is originally at 0x8000)
-        // An alternative would be to set vbar address via mrc p15, 0, x1, c12, c0, 0
-        CPU::x0(reinterpret_cast<CPU::Reg>(&_entry)); // load x0 with the source pointer
-        CPU::x1(Memory_Map::VECTOR_TABLE); // load x1 with the destination pointer
-
-        // Copy the first 32 bytes
-        CPU::ldmia(); // load multiple registers from the memory pointed by x0 and auto-increment it accordingly
-        CPU::stmia(); // store multiple registers to the memory pointed by x1 and auto-increment it accordingly
-
-        // Repeat to copy the subsequent 32 bytes
-        CPU::ldmia();
-        CPU::stmia();
-
-        // Clear the BSS (SETUP was linked to CRT0, but entry point didn't go through BSS clear)
-        _bss_clear();
+    if (CPU::id() == 0) {
+        //set el2 stack
+        CPU::hcr_el2(CPU::EL1_AARCH64_EN | CPU::SWIO_HARDWIRED);
+        CPU::spsr_el2(CPU::FLAG_D | CPU::FLAG_A | CPU::FLAG_I | CPU::FLAG_F | CPU::FLAG_EL1);
+        CPU::Reg el1_addr = CPU::pc();
+        el1_addr += 16; // previous instruction, this instruction, and the next one;
+        CPU::elr_el2(el1_addr);
+        CPU::eret();     
+        Machine::clear_bss();
     } else {
-        BCM_Mailbox * mbox = reinterpret_cast<BCM_Mailbox *>(Memory_Map::MBOX_CTRL_BASE);
-        mbox->eoi(0);
-        mbox->enable();
+        // we want secondary cores to be held here.
+        while (1) CPU::halt();
     }
-
     _setup();
 }
 
 void _setup()
 {
-    CPU::int_disable(); // interrupts will be re-enabled at init_end
-
-    CPU::enable_fpu();
-    CPU::flush_caches();
-    CPU::flush_branch_predictors();
-    CPU::flush_tlb();
-    CPU::actlr(CPU::actlr() | CPU::DCACHE_PREFE); // enable Dside prefetch
-    
-    Setup setup;
+    int i = 0;
+    i += 2;
 }

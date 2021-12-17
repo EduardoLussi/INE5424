@@ -71,6 +71,9 @@ public:
     static Log_Addr sp() { Reg r; ASM("mov %0, sp" : "=r"(r) :); return r; }
     static void sp(Log_Addr sp) { ASM("mov sp, %0" : : "r"(Reg(sp))); ASM("isb"); }
 
+    static Log_Addr sp_el1() { Reg r; ASM("mrs %0, sp_el1" : "=r"(r) :); return r; }
+    static void sp_el1(Log_Addr sp) { ASM("msr sp_el1, %0" : : "r"(Reg(sp))); ASM("isb"); }
+
     static Reg fr() { Reg r; ASM("mov %0, x0" : "=r"(r)); return r; }
     static void fr(Reg r) {  ASM("mov x0, %0" : : "r"(r) : "x0"); }
 
@@ -401,7 +404,7 @@ public:
             ASM("ldmfd sp!, {x0-x3, x12, lr}");
     }
 
-    static void mode(unsigned int m) { /*ASM("msr cpsr_c, %0" : : "i"(m | FLAG_F | FLAG_I) : "cc");*/ }
+    static void mode(unsigned int m) { ASM("msr cpsr_c, %0" : : "i"(m | FLAG_F | FLAG_I) : "cc"); }
 
     static void svc_enter(unsigned int from, bool ret = true) {
         mode(MODE_SVC);                 // go to SVC mode to save context
