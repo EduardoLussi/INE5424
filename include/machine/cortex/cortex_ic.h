@@ -100,6 +100,7 @@ private:
     static void data_abort() __attribute__ ((naked));
     static void reserved() __attribute__ ((naked));
     static void fiq() __attribute__ ((naked));
+    static void others() __attribute__ ((naked));
 
     static void kill();
 

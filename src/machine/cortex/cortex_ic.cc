@@ -127,8 +127,22 @@ void IC::kill()
 
 extern "C" { void _dispatch(unsigned int) __attribute__ ((alias("_ZN4EPOS1S2IC8dispatchEj"))); }
 
+extern "C" { void _others(unsigned int) __attribute__ ((alias("_ZN4EPOS1S2IC6othersEv"))); }
+
 void IC::entry()
 {
+    db<IC>(TRC) << "IC::entry" << endl;
+    //CPU::Context::push(true);
+    dispatch(int_id());
+    CPU::int_disable();
+    //CPU::Context::pop(true);
+    CPU::eret();
+}
+
+void IC::others()
+{
+    db<IC>(TRC) << "IC::others" << endl;
+    Machine::panic();
 }
 
 #endif    
