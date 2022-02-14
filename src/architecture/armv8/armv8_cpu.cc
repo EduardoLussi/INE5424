@@ -7,6 +7,8 @@ __BEGIN_SYS
 unsigned int CPU::_cpu_clock;
 unsigned int CPU::_bus_clock;
 
+void CPU::Context::save() volatile {}
+
 void CPU::Context::load() const volatile
 {
     sp(this);

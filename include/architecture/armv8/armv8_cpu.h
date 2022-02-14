@@ -360,7 +360,25 @@ public:
 
 inline void ARMv8_A::Context::push(bool interrupt)
 {
-    ASM("       str   x30, [sp, #-8]!           // make room for PC             \t\n\
+    if (interrupt) {
+        ASM("   str   x30, [sp, #-8]!           // push LR                      \t\n\
+                stp   x28, x29, [sp, #-16]!                                     \t\n\
+                stp   x26, x27, [sp, #-16]!                                     \t\n\
+                stp   x24, x25, [sp, #-16]!                                     \t\n\
+                stp   x22, x23, [sp, #-16]!                                     \t\n\
+                stp   x20, x21, [sp, #-16]!                                     \t\n\
+                stp   x18, x19, [sp, #-16]!                                     \t\n\
+                stp   x16, x17, [sp, #-16]!                                     \t\n\
+                stp   x14, x15, [sp, #-16]!                                     \t\n\
+                stp   x12, x13, [sp, #-16]!                                     \t\n\
+                stp   x10, x11, [sp, #-16]!                                     \t\n\
+                stp    x8,  x9, [sp, #-16]!                                     \t\n\
+                stp    x6,  x7, [sp, #-16]!                                     \t\n\
+                stp    x4,  x5, [sp, #-16]!                                     \t\n\
+                stp    x2,  x3, [sp, #-16]!                                     \t\n\
+                stp    x0,  x1, [sp, #-16]!                                     \t" : : : "cc");
+    } else {
+        ASM("   str   x30, [sp, #-8]!           // make room for PC             \t\n\
                 str   x30, [sp, #-8]!           // push LR                      \t\n\
                 adr   x30, .ret                 // calculate PC                 \t\n\
                 str   x30, [sp, #8]             // save PC                      \t\n\
@@ -391,11 +409,30 @@ inline void ARMv8_A::Context::push(bool interrupt)
                 mrs   x16, SPSel                                                \t\n\
                 orr   x17, x17, x16                                             \t\n\
                 str   x17, [sp, #-8]!           // push PSR                     \t" : : : "cc");
+    }
 }
 
 inline void ARMv8_A::Context::pop(bool interrupt)
 {
-    ASM("       ldr   x30, [sp], #8             // pop PSR into x30             \t\n\
+    if (interrupt) {
+        ASM("   ldp    x0,  x1, [sp], #16                                       \t\n\
+                ldp    x2,  x3, [sp], #16                                       \t\n\
+                ldp    x4,  x5, [sp], #16                                       \t\n\
+                ldp    x6,  x7, [sp], #16                                       \t\n\
+                ldp    x8,  x9, [sp], #16                                       \t\n\
+                ldp   x10, x11, [sp], #16                                       \t\n\
+                ldp   x12, x13, [sp], #16                                       \t\n\
+                ldp   x14, x15, [sp], #16                                       \t\n\
+                ldp   x16, x17, [sp], #16                                       \t\n\
+                ldp   x18, x19, [sp], #16                                       \t\n\
+                ldp   x20, x21, [sp], #16                                       \t\n\
+                ldp   x22, x23, [sp], #16                                       \t\n\
+                ldp   x24, x25, [sp], #16                                       \t\n\
+                ldp   x26, x27, [sp], #16                                       \t\n\
+                ldp   x28, x29, [sp], #16                                       \t\n\
+                ldr   x30, [sp], #8                                             \t" : : : "cc");
+    } else {
+        ASM("   ldr   x30, [sp], #8             // pop PSR into x30             \t\n\
                 ldp    x0,  x1, [sp], #16                                       \t\n\
                 ldp    x2,  x3, [sp], #16                                       \t\n\
                 ldp    x4,  x5, [sp], #16                                       \t\n\
@@ -417,6 +454,7 @@ inline void ARMv8_A::Context::pop(bool interrupt)
                 msr   ELR_EL1, x30                                              \t\n\
                 ldr   x30, [sp, #-16]           // pop LR                       \t\n\
                 eret                                                            \t" : : : "cc");
+    }
 }
 
 class CPU: public ARMv8_A

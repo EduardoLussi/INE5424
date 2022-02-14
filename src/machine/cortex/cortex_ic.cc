@@ -132,11 +132,10 @@ extern "C" { void _others(unsigned int) __attribute__ ((alias("_ZN4EPOS1S2IC6oth
 void IC::entry()
 {
     db<IC>(TRC) << "IC::entry" << endl;
-    //CPU::Context::push(true);
-    dispatch(int_id());
+    CPU::Context::push(true);
+    dispatch(0);
     CPU::int_disable();
-    //CPU::Context::pop(true);
-    CPU::eret();
+    CPU::Context::pop(true);
 }
 
 void IC::others()
