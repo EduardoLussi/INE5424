@@ -145,6 +145,29 @@ public:
     FCFS(int p = NORMAL, Tn & ... an);
 };
 
+// Rate monotonic
+class RM: public Priority
+{
+public:
+    static const bool time = false;
+    static const bool dynamic = false;
+    static const bool preemptive = true;
+
+public:
+    RM(int p = APERIODIC): Priority(p), _deadline(0), _period(0), _capacity(0) {}
+    RM(const Microsecond & d, const Microsecond & p = SAME, const Microsecond & c = UNKNOWN)
+    : Priority(p ? p : d), _deadline(d), _period(p), _capacity(c) {}
+
+public:
+    const Microsecond period() { return _period; }
+    void period(const Microsecond & p) { _period = p; }
+
+public:
+    Microsecond _deadline;
+    Microsecond _period;
+    Microsecond _capacity;
+};
+
 __END_SYS
 
 #endif
