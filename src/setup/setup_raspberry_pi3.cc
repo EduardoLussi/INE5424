@@ -1054,8 +1054,16 @@ void _vector_table()
                         .balign 128                                             \t\n\
         .sync_curr_sp0: str x30, [sp,#-8]!                                      \t\n\
                         str x29, [sp,#-8]!                                      \t\n\
+                        mrs x30, SPSR_EL1                                       \t\n\
+                        str x30, [sp, #-8]!                                     \t\n\
+                        mrs x30, ELR_EL1                                        \t\n\
+                        str x30, [sp, #-8]!                                     \t\n\
                         ldr x29, .ic_others                                     \t\n\
                         blr x29                                                 \t\n\
+                        ldr x30, [sp], #8                                       \t\n\
+                        msr ELR_EL1, x30                                        \t\n\
+                        ldr x30, [sp], #8                                       \t\n\
+                        msr SPSR_EL1, x30                                       \t\n\
                         ldr x29, [sp], #8                                       \t\n\
                         ldr x30, [sp], #8                                       \t\n\
                         eret                                                    \t\n\
@@ -1063,8 +1071,16 @@ void _vector_table()
                         .balign 128                                             \t\n\
         .irq_curr_sp0:  str x30, [sp,#-8]!                                      \t\n\
                         str x29, [sp,#-8]!                                      \t\n\
-                        ldr x29, .ic_entry                                      \t\n\
+                        mrs x30, SPSR_EL1                                       \t\n\
+                        str x30, [sp, #-8]!                                     \t\n\
+                        mrs x30, ELR_EL1                                        \t\n\
+                        str x30, [sp, #-8]!                                     \t\n\
+                        ldr x29, .ic_entry                                     \t\n\
                         blr x29                                                 \t\n\
+                        ldr x30, [sp], #8                                       \t\n\
+                        msr ELR_EL1, x30                                        \t\n\
+                        ldr x30, [sp], #8                                       \t\n\
+                        msr SPSR_EL1, x30                                       \t\n\
                         ldr x29, [sp], #8                                       \t\n\
                         ldr x30, [sp], #8                                       \t\n\
                         eret                                                    \t\n\
@@ -1072,8 +1088,16 @@ void _vector_table()
                         .balign 128                                             \t\n\
         .fiq_curr_sp0:  str x30, [sp,#-8]!                                      \t\n\
                         str x29, [sp,#-8]!                                      \t\n\
+                        mrs x30, SPSR_EL1                                       \t\n\
+                        str x30, [sp, #-8]!                                     \t\n\
+                        mrs x30, ELR_EL1                                        \t\n\
+                        str x30, [sp, #-8]!                                     \t\n\
                         ldr x29, .ic_others                                     \t\n\
                         blr x29                                                 \t\n\
+                        ldr x30, [sp], #8                                       \t\n\
+                        msr ELR_EL1, x30                                        \t\n\
+                        ldr x30, [sp], #8                                       \t\n\
+                        msr SPSR_EL1, x30                                       \t\n\
                         ldr x29, [sp], #8                                       \t\n\
                         ldr x30, [sp], #8                                       \t\n\
                         eret                                                    \t\n\
@@ -1081,8 +1105,16 @@ void _vector_table()
                         .balign 128                                             \t\n\
         .error_curr_sp0:str x30, [sp,#-8]!                                      \t\n\
                         str x29, [sp,#-8]!                                      \t\n\
+                        mrs x30, SPSR_EL1                                       \t\n\
+                        str x30, [sp, #-8]!                                     \t\n\
+                        mrs x30, ELR_EL1                                        \t\n\
+                        str x30, [sp, #-8]!                                     \t\n\
                         ldr x29, .ic_others                                     \t\n\
                         blr x29                                                 \t\n\
+                        ldr x30, [sp], #8                                       \t\n\
+                        msr ELR_EL1, x30                                        \t\n\
+                        ldr x30, [sp], #8                                       \t\n\
+                        msr SPSR_EL1, x30                                       \t\n\
                         ldr x29, [sp], #8                                       \t\n\
                         ldr x30, [sp], #8                                       \t\n\
                         eret                                                    \t\n\
@@ -1091,8 +1123,16 @@ void _vector_table()
                         .balign 128                                             \t\n\
         .sync_curr_spx: str x30, [sp,#-8]!                                      \t\n\
                         str x29, [sp,#-8]!                                      \t\n\
+                        mrs x30, SPSR_EL1                                       \t\n\
+                        str x30, [sp, #-8]!                                     \t\n\
+                        mrs x30, ELR_EL1                                        \t\n\
+                        str x30, [sp, #-8]!                                     \t\n\
                         ldr x29, .ic_others                                     \t\n\
                         blr x29                                                 \t\n\
+                        ldr x30, [sp], #8                                       \t\n\
+                        msr ELR_EL1, x30                                        \t\n\
+                        ldr x30, [sp], #8                                       \t\n\
+                        msr SPSR_EL1, x30                                       \t\n\
                         ldr x29, [sp], #8                                       \t\n\
                         ldr x30, [sp], #8                                       \t\n\
                         eret                                                    \t\n\
@@ -1100,8 +1140,16 @@ void _vector_table()
                         .balign 128                                             \t\n\
         .irq_curr_spx:  str x30, [sp,#-8]!                                      \t\n\
                         str x29, [sp,#-8]!                                      \t\n\
-                        ldr x29, .ic_entry                                      \t\n\
+                        mrs x30, SPSR_EL1                                       \t\n\
+                        str x30, [sp, #-8]!                                     \t\n\
+                        mrs x30, ELR_EL1                                        \t\n\
+                        str x30, [sp, #-8]!                                     \t\n\
+                        ldr x29, .ic_entry                                     \t\n\
                         blr x29                                                 \t\n\
+                        ldr x30, [sp], #8                                       \t\n\
+                        msr ELR_EL1, x30                                        \t\n\
+                        ldr x30, [sp], #8                                       \t\n\
+                        msr SPSR_EL1, x30                                       \t\n\
                         ldr x29, [sp], #8                                       \t\n\
                         ldr x30, [sp], #8                                       \t\n\
                         eret                                                    \t\n\
@@ -1109,8 +1157,16 @@ void _vector_table()
                         .balign 128                                             \t\n\
         .fiq_curr_spx:  str x30, [sp,#-8]!                                      \t\n\
                         str x29, [sp,#-8]!                                      \t\n\
+                        mrs x30, SPSR_EL1                                       \t\n\
+                        str x30, [sp, #-8]!                                     \t\n\
+                        mrs x30, ELR_EL1                                        \t\n\
+                        str x30, [sp, #-8]!                                     \t\n\
                         ldr x29, .ic_others                                     \t\n\
                         blr x29                                                 \t\n\
+                        ldr x30, [sp], #8                                       \t\n\
+                        msr ELR_EL1, x30                                        \t\n\
+                        ldr x30, [sp], #8                                       \t\n\
+                        msr SPSR_EL1, x30                                       \t\n\
                         ldr x29, [sp], #8                                       \t\n\
                         ldr x30, [sp], #8                                       \t\n\
                         eret                                                    \t\n\
@@ -1118,8 +1174,16 @@ void _vector_table()
                         .balign 128                                             \t\n\
         .error_curr_spx:str x30, [sp,#-8]!                                      \t\n\
                         str x29, [sp,#-8]!                                      \t\n\
+                        mrs x30, SPSR_EL1                                       \t\n\
+                        str x30, [sp, #-8]!                                     \t\n\
+                        mrs x30, ELR_EL1                                        \t\n\
+                        str x30, [sp, #-8]!                                     \t\n\
                         ldr x29, .ic_others                                     \t\n\
                         blr x29                                                 \t\n\
+                        ldr x30, [sp], #8                                       \t\n\
+                        msr ELR_EL1, x30                                        \t\n\
+                        ldr x30, [sp], #8                                       \t\n\
+                        msr SPSR_EL1, x30                                       \t\n\
                         ldr x29, [sp], #8                                       \t\n\
                         ldr x30, [sp], #8                                       \t\n\
                         eret                                                    \t\n\
@@ -1128,8 +1192,16 @@ void _vector_table()
                         .balign 128                                             \t\n\
         .sync_lower64:  str x30, [sp,#-8]!                                      \t\n\
                         str x29, [sp,#-8]!                                      \t\n\
+                        mrs x30, SPSR_EL1                                       \t\n\
+                        str x30, [sp, #-8]!                                     \t\n\
+                        mrs x30, ELR_EL1                                        \t\n\
+                        str x30, [sp, #-8]!                                     \t\n\
                         ldr x29, .ic_others                                     \t\n\
                         blr x29                                                 \t\n\
+                        ldr x30, [sp], #8                                       \t\n\
+                        msr ELR_EL1, x30                                        \t\n\
+                        ldr x30, [sp], #8                                       \t\n\
+                        msr SPSR_EL1, x30                                       \t\n\
                         ldr x29, [sp], #8                                       \t\n\
                         ldr x30, [sp], #8                                       \t\n\
                         eret                                                    \t\n\
@@ -1137,8 +1209,16 @@ void _vector_table()
                         .balign 128                                             \t\n\
         .irq_lower64:   str x30, [sp,#-8]!                                      \t\n\
                         str x29, [sp,#-8]!                                      \t\n\
-                        ldr x29, .ic_entry                                      \t\n\
+                        mrs x30, SPSR_EL1                                       \t\n\
+                        str x30, [sp, #-8]!                                     \t\n\
+                        mrs x30, ELR_EL1                                        \t\n\
+                        str x30, [sp, #-8]!                                     \t\n\
+                        ldr x29, .ic_entry                                     \t\n\
                         blr x29                                                 \t\n\
+                        ldr x30, [sp], #8                                       \t\n\
+                        msr ELR_EL1, x30                                        \t\n\
+                        ldr x30, [sp], #8                                       \t\n\
+                        msr SPSR_EL1, x30                                       \t\n\
                         ldr x29, [sp], #8                                       \t\n\
                         ldr x30, [sp], #8                                       \t\n\
                         eret                                                    \t\n\
@@ -1146,8 +1226,16 @@ void _vector_table()
                         .balign 128                                             \t\n\
         .fiq_lower64:   str x30, [sp,#-8]!                                      \t\n\
                         str x29, [sp,#-8]!                                      \t\n\
+                        mrs x30, SPSR_EL1                                       \t\n\
+                        str x30, [sp, #-8]!                                     \t\n\
+                        mrs x30, ELR_EL1                                        \t\n\
+                        str x30, [sp, #-8]!                                     \t\n\
                         ldr x29, .ic_others                                     \t\n\
                         blr x29                                                 \t\n\
+                        ldr x30, [sp], #8                                       \t\n\
+                        msr ELR_EL1, x30                                        \t\n\
+                        ldr x30, [sp], #8                                       \t\n\
+                        msr SPSR_EL1, x30                                       \t\n\
                         ldr x29, [sp], #8                                       \t\n\
                         ldr x30, [sp], #8                                       \t\n\
                         eret                                                    \t\n\
@@ -1155,8 +1243,16 @@ void _vector_table()
                         .balign 128                                             \t\n\
         .error_lower64: str x30, [sp,#-8]!                                      \t\n\
                         str x29, [sp,#-8]!                                      \t\n\
+                        mrs x30, SPSR_EL1                                       \t\n\
+                        str x30, [sp, #-8]!                                     \t\n\
+                        mrs x30, ELR_EL1                                        \t\n\
+                        str x30, [sp, #-8]!                                     \t\n\
                         ldr x29, .ic_others                                     \t\n\
                         blr x29                                                 \t\n\
+                        ldr x30, [sp], #8                                       \t\n\
+                        msr ELR_EL1, x30                                        \t\n\
+                        ldr x30, [sp], #8                                       \t\n\
+                        msr SPSR_EL1, x30                                       \t\n\
                         ldr x29, [sp], #8                                       \t\n\
                         ldr x30, [sp], #8                                       \t\n\
                         eret                                                    \t\n\
@@ -1165,8 +1261,16 @@ void _vector_table()
                         .balign 128                                             \t\n\
         .sync_lower32:  str x30, [sp,#-8]!                                      \t\n\
                         str x29, [sp,#-8]!                                      \t\n\
+                        mrs x30, SPSR_EL1                                       \t\n\
+                        str x30, [sp, #-8]!                                     \t\n\
+                        mrs x30, ELR_EL1                                        \t\n\
+                        str x30, [sp, #-8]!                                     \t\n\
                         ldr x29, .ic_others                                     \t\n\
                         blr x29                                                 \t\n\
+                        ldr x30, [sp], #8                                       \t\n\
+                        msr ELR_EL1, x30                                        \t\n\
+                        ldr x30, [sp], #8                                       \t\n\
+                        msr SPSR_EL1, x30                                       \t\n\
                         ldr x29, [sp], #8                                       \t\n\
                         ldr x30, [sp], #8                                       \t\n\
                         eret                                                    \t\n\
@@ -1174,8 +1278,16 @@ void _vector_table()
                         .balign 128                                             \t\n\
         .irq_lower32:   str x30, [sp,#-8]!                                      \t\n\
                         str x29, [sp,#-8]!                                      \t\n\
-                        ldr x29, .ic_entry                                      \t\n\
+                        mrs x30, SPSR_EL1                                       \t\n\
+                        str x30, [sp, #-8]!                                     \t\n\
+                        mrs x30, ELR_EL1                                        \t\n\
+                        str x30, [sp, #-8]!                                     \t\n\
+                        ldr x29, .ic_entry                                     \t\n\
                         blr x29                                                 \t\n\
+                        ldr x30, [sp], #8                                       \t\n\
+                        msr ELR_EL1, x30                                        \t\n\
+                        ldr x30, [sp], #8                                       \t\n\
+                        msr SPSR_EL1, x30                                       \t\n\
                         ldr x29, [sp], #8                                       \t\n\
                         ldr x30, [sp], #8                                       \t\n\
                         eret                                                    \t\n\
@@ -1183,8 +1295,16 @@ void _vector_table()
                         .balign 128                                             \t\n\
         .fiq_lower32:   str x30, [sp,#-8]!                                      \t\n\
                         str x29, [sp,#-8]!                                      \t\n\
+                        mrs x30, SPSR_EL1                                       \t\n\
+                        str x30, [sp, #-8]!                                     \t\n\
+                        mrs x30, ELR_EL1                                        \t\n\
+                        str x30, [sp, #-8]!                                     \t\n\
                         ldr x29, .ic_others                                     \t\n\
                         blr x29                                                 \t\n\
+                        ldr x30, [sp], #8                                       \t\n\
+                        msr ELR_EL1, x30                                        \t\n\
+                        ldr x30, [sp], #8                                       \t\n\
+                        msr SPSR_EL1, x30                                       \t\n\
                         ldr x29, [sp], #8                                       \t\n\
                         ldr x30, [sp], #8                                       \t\n\
                         eret                                                    \t\n\
@@ -1192,8 +1312,16 @@ void _vector_table()
                         .balign 128                                             \t\n\
         .error_lower32: str x30, [sp,#-8]!                                      \t\n\
                         str x29, [sp,#-8]!                                      \t\n\
+                        mrs x30, SPSR_EL1                                       \t\n\
+                        str x30, [sp, #-8]!                                     \t\n\
+                        mrs x30, ELR_EL1                                        \t\n\
+                        str x30, [sp, #-8]!                                     \t\n\
                         ldr x29, .ic_others                                     \t\n\
                         blr x29                                                 \t\n\
+                        ldr x30, [sp], #8                                       \t\n\
+                        msr ELR_EL1, x30                                        \t\n\
+                        ldr x30, [sp], #8                                       \t\n\
+                        msr SPSR_EL1, x30                                       \t\n\
                         ldr x29, [sp], #8                                       \t\n\
                         ldr x30, [sp], #8                                       \t\n\
                         eret                                                    \t\n\
