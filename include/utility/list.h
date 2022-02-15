@@ -1346,13 +1346,39 @@ public:
 
     unsigned int grouped_size() const { return _grouped_size; }
 
-    Element * search_size(unsigned int s) {
+    Element * first_fit(unsigned int s) {
         Element * e = head();
         if(sizeof(Object_Type) < sizeof(Element))
             for(; e && (e->size() < sizeof(Element) / sizeof(Object_Type) + s) && (e->size() != s); e = e->next());
         else
             for(; e && (e->size() < s); e = e->next());
         return e;
+    }
+
+    void print_list() {
+      Element* e = head();
+      int i = 1;
+      for (; e; e = e->next())
+        kout << "Element #" << i++ << "->size(): " << e->size() << endl;
+    }
+
+    Element* search_size(unsigned int s)  {
+        return first_fit(s);
+        Element* e = head();
+        Element* bestFit = nullptr;
+        if (sizeof(Object_Type) < sizeof(Element))
+            for (; e; e = e->next()) {
+                if ((e->size() >= sizeof(Element) / sizeof(Object_Type) + s) || (e->size() == s)) {
+                    if (!bestFit || e->size() < bestFit->size()) bestFit = e;
+                }
+            }
+        else
+            for (; e; e = e->next()) {
+                if (e->size() >= s) {
+                    if (!bestFit || e->size() < bestFit->size()) bestFit = e;
+                }
+            }
+        return bestFit;
     }
 
     void insert_merging(Element * e, Element ** m1, Element ** m2) {
