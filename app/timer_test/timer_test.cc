@@ -14,16 +14,16 @@ int main()
 {
     cout << "===== Test Task Fork "<< Task::self()->address_space()<<" =====" << endl;
 
-    if (Task::self()->address_space() == 0x00000000fe087fc8) {
+    if ((long int) Task::self()->address_space() == 0x00000000fe087fc8) {
         Task(Task::self(), &func_a);
         Task(Task::self(), &func_a);
         cout << "Hello World! I'm Task: "<< Task::self()->address_space() << endl;
     }
-    if (Task::self()->address_space() == 0x00000000fe077d70) {
+    if ((long int) Task::self()->address_space() == 0x00000000fe077d70) {
         cout << "Konnichiwa I'm Task: "<< Task::self()->address_space() << endl;
         func_a();
     }
-    if (Task::self()->address_space() == 0x00000000fe06fc50) {
+    if ((long int) Task::self()->address_space() == 0x00000000fe06fc50) {
         cout << "Annyeong haseyo I'm Task: "<< Task::self()->address_space() << endl;
         func_a();
     }
