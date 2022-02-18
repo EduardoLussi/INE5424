@@ -275,6 +275,9 @@ public:
     static Reg  r1() { Reg r; ASM("mov %0, x1" :  "=r"(r) : : ); return r; }
     static void r1(Reg r) {   ASM("mov x1, %0" : : "r"(r): ); }
 
+    static Reg  esr_el1() { Reg r; ASM("mrs %0, esr_el1" :  "=r"(r) : : ); return r; }
+    static void esr_el1(Reg r) {   ASM("msr esr_el1, %0" : : "r"(r): ); }
+
     static Reg  sctlr() { Reg r; ASM("mrs %0, sctlr_el1" :  "=r"(r)); return r; }
     static void sctlr(Reg r) {   ASM("msr sctlr_el1, %0" : : "r"(r) : "r0"); }
 
@@ -304,6 +307,8 @@ public:
     static void stmia() {}
 
     static void dsb() { ASM("dsb ish"); }
+
+    static void svc() { ASM("svc 0x0"); }
 
     static void eret() { ASM("eret"); }
 

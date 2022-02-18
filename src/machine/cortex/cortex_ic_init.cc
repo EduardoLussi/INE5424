@@ -16,6 +16,7 @@ extern "C" {
     void _reserved();
     void _int_entry();
     void _fiq();
+    void _sync();
     void _others();
 }
 
@@ -43,7 +44,8 @@ void IC::init()
     // 4x4x128 = 2048. The brench address is right after the vector table.
     CPU::FSR ** vt = reinterpret_cast<CPU::FSR **>(Memory_Map::VECTOR_TABLE + 2048);
     vt[0] = _int_entry;
-    vt[1] = _others;
+    vt[1] = _sync;
+    vt[2] = _others;
 #endif
 
     // Set all interrupt handlers to int_not()
