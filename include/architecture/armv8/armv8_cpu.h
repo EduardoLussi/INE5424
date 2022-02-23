@@ -278,6 +278,8 @@ public:
     static Reg  esr_el1() { Reg r; ASM("mrs %0, esr_el1" :  "=r"(r) : : ); return r; }
     static void esr_el1(Reg r) {   ASM("msr esr_el1, %0" : : "r"(r): ); }
 
+    static Reg esr_el1_ec() { Reg r; ASM("mrs %0, esr_el1" :  "=r"(r) : : ); return (r & 0xFC000000) >> 26; }
+
     static Reg  sctlr() { Reg r; ASM("mrs %0, sctlr_el1" :  "=r"(r)); return r; }
     static void sctlr(Reg r) {   ASM("msr sctlr_el1, %0" : : "r"(r) : "r0"); }
 

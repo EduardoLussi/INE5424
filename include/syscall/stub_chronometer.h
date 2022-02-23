@@ -13,7 +13,7 @@ __USING_UTIL
 class Stub_Chronometer
 {
 private:
-    int id;
+    long int id;
     typedef _SYS::Message Message;
     // typedef Message::ENTITY::SEMAPHORE SEMAPHORE;
 

@@ -14,7 +14,7 @@ __USING_UTIL
 class Stub_Thread
 {
 private:
-    int id;
+    long int id;
     typedef _SYS::Message Message;
 
 public:
@@ -22,7 +22,7 @@ public:
 
     template<typename ... Tn>
     Stub_Thread(int (* entry)(Tn ...), Tn ... an){
-        Message * msg = new Message(Message::ENTITY::THREAD, Message::THREAD_CREATE, entry);
+        Message * msg = new Message(0, Message::ENTITY::THREAD, Message::THREAD_CREATE, entry);
         msg->act();
         id = msg->result();
     }
@@ -36,7 +36,7 @@ public:
     }
     */
 
-    void set_id(int _id){id = _id;};
+    void set_id(long int _id){id = _id;};
 
     /*
     void priority(const Criterion & p) {
@@ -48,7 +48,7 @@ public:
     Stub_Task * task() {
         Message * msg = new Message(id, Message::ENTITY::THREAD, Message::THREAD_TASK);
         msg->act();
-        int id = msg->result();
+        long int id = msg->result();
         Stub_Task * new_stub_task = new Stub_Task();
         new_stub_task->set_id(id);
         return new_stub_task;
@@ -78,7 +78,7 @@ public:
     static Stub_Thread * self() {
         Message * msg = new Message(Message::ENTITY::THREAD, Message::THREAD_SELF);
         msg->act();
-        int id = msg->result();
+        long int id = msg->result();
         Stub_Thread * new_stub_thread = new Stub_Thread();
         new_stub_thread->set_id(id);
         return new_stub_thread;

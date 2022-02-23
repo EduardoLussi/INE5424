@@ -14,7 +14,7 @@ __USING_UTIL
 class Stub_Alarm
 {
 private:
-    int id;
+    long int id;
     typedef _SYS::Message Message;
     // typedef Message::ENTITY::SEMAPHORE SEMAPHORE;
 

@@ -14,7 +14,7 @@ __USING_UTIL
 class Stub_Clock
 {
 private:
-    int id;
+    long int id;
     typedef _SYS::Message Message;
     typedef Message::ENTITY::CLOCK CLOCK;
     typedef RTC::Date Date;

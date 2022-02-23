@@ -13,7 +13,7 @@ __USING_UTIL
 class Stub_Semaphore
 {
 private:
-    int id;
+    long int id;
     int handler;
     typedef _SYS::Message Message;
 

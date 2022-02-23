@@ -14,12 +14,12 @@ __USING_UTIL
 class Stub_Segment
 {
 private:
-    int id;
+    long int id;
     typedef _SYS::Message Message;
 
 public:
     Stub_Segment(){}
-    void set_id(int _id) {id = _id;}
+    void set_id(long int _id) {id = _id;}
 
     Stub_Segment(unsigned int bytes, MMU::Flags flags = MMU::Flags::APP){
         Message * msg = new Message(Message::ENTITY::SEGMENT, Message::SEGMENT_CREATE, bytes, flags);
@@ -51,7 +51,7 @@ public:
     int resize (int amount) {
         Message * msg = new Message(id, Message::ENTITY::SEGMENT, Message::SEGMENT_RESIZE, amount);
         msg->act();
-        int r = msg->result();
+        long int r = msg->result();
         return r;
     }
 };

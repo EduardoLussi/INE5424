@@ -13,7 +13,7 @@ __USING_UTIL
 class Stub_Condition
 {
 private:
-    int id;
+    long int id;
     int handler;
     typedef _SYS::Message Message;
 

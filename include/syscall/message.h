@@ -5,8 +5,6 @@
 
 #include <architecture.h>
 
-extern "C" { void _syscall(void *); }
-
 __BEGIN_SYS
 
 class Message
@@ -119,10 +117,10 @@ public:
     };
 public:
     template<typename ... Tn>
-    Message(int entity, int method, Tn ... an): _entity(entity), _method(method) {set_params(an ...);}
+    Message(unsigned long int entity, unsigned long int method, Tn ... an): _entity(entity), _method(method) {set_params(an ...);}
 
     template<typename ... Tn>
-    Message(int id, int entity, int method, Tn ... an): _id(id), _entity(entity), _method(method) {set_params(an ...);}
+    Message(unsigned long int id, unsigned long int entity, unsigned long int method, Tn ... an): _id(id), _entity(entity), _method(method) {set_params(an ...);}
 
     template<typename ... Tn>
     void get_params(Tn && ... an) {
@@ -133,24 +131,24 @@ public:
     template<typename ... Tn>
     void set_params(const Tn & ... an) {
         // Force a compilation error in case out is called with too many arguments
-        typename IF<(SIZEOF<Tn ...>::Result <= 256), int, void>::Result index = 0;
+        typename IF<(SIZEOF<Tn ...>::Result <= 256), unsigned long int, void>::Result index = 0;
         SERIALIZE(_params, index, an ...);
     }
 
-    void act() { _syscall(this); }
+    void act() { CPU::syscall(this); }
 
-    int id(){return _id;}
-    int entity(){return _entity;}
-    int method(){return _method;}
-    int result(){return _result;}
-    void result(int r){_result = r;}
+    unsigned long int id(){return _id;}
+    unsigned long int entity(){return _entity;}
+    unsigned long int method(){return _method;}
+    unsigned long int result(){return _result;}
+    void result(unsigned long int r){_result = r;}
     char* params(){return _params;}
 
 private:
-    int _id;
-    int _entity;
-    int _method;
-    int _result;
+    unsigned long int _id;
+    unsigned long int _entity;
+    unsigned long int _method;
+    unsigned long int _result;
     char _params[256];
 
 };

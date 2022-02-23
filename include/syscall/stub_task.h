@@ -16,7 +16,7 @@ __USING_UTIL
 class Stub_Task
 {
 private:
-    int _id;
+    long int _id;
     typedef _SYS::Message Message;
 
 public:
@@ -84,8 +84,8 @@ public:
     int id() {
         Message * msg = new Message(_id, Message::ENTITY::TASK, Message::TASK_ID);
         msg->act();
-        int r = msg->result();
-        return reinterpret_cast<int>(r);
+        long int r = msg->result();
+        return reinterpret_cast<long int>(r);
     }
 
     void set_id(int id) {_id = id;}

@@ -126,7 +126,7 @@ void IC::kill()
 #else
 
 extern "C" { void _dispatch(unsigned int) __attribute__ ((alias("_ZN4EPOS1S2IC8dispatchEj"))); }
-extern "C" { void _sync(unsigned int) __attribute__ ((alias("_ZN4EPOS1S2IC6othersEv"))); }
+extern "C" { void _sync(unsigned int) __attribute__ ((alias("_ZN4EPOS1S2IC4syncEv"))); }
 extern "C" { void _others(unsigned int) __attribute__ ((alias("_ZN4EPOS1S2IC6othersEv"))); }
 
 void IC::entry()
@@ -140,8 +140,8 @@ void IC::entry()
 void IC::sync()
 {
     CPU::Context::push(true);
-    Reg esr_el1 = CPU::esr_el1();
-    switch (esr_el1)
+    int sync_type = CPU::esr_el1_ec();
+    switch (sync_type)
     {
     case 0b010101:
         CPU::syscalled();

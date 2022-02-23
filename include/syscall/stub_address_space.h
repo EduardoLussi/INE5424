@@ -14,14 +14,14 @@ __USING_UTIL
 class Stub_Address_Space
 {
 private:
-    int id;
+    long int id;
     typedef _SYS::Message Message;
     // typedef Message::ENTITY::SEMAPHORE SEMAPHORE;
 
 
 public:
     Stub_Address_Space(){}
-    void set_id(int _id) {id = _id;}
+    void set_id(long int _id) {id = _id;}
 
     template<typename ... Tn>
     Stub_Address_Space(Tn ... an){

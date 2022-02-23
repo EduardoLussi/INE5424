@@ -13,7 +13,7 @@ __USING_UTIL
 class Stub_Mutex
 {
 private:
-    int id;
+    long int id;
     typedef _SYS::Message Message;
 
 public:
@@ -36,7 +36,7 @@ public:
 
 class Stub_Mutex_Handler {
 private:
-    int id;
+    long int id;
     typedef _SYS::Message Message;
 
 public:

@@ -1,6 +1,7 @@
 // EPOS ARMv7 System Call Entry Implementation
 
 #include <architecture/armv8/armv8_cpu.h>
+#include <syscall/agent.h>
 
 extern "C" { void _exec(void *); }
 
@@ -8,8 +9,8 @@ __BEGIN_SYS
 
 void CPU::syscalled()
 {
-    if(Traits<Build>::MODE == Traits<Build>::KERNEL)
-        _exec(reinterpret_cast<void *>(CPU::r1()));             // the message to EPOS Framework is passed on register r1
+    //if(Traits<Build>::MODE == Traits<Build>::KERNEL)
+        reinterpret_cast<Agent *>(reinterpret_cast<void *>(CPU::r1()))->exec();             // the message to EPOS Framework is passed on register r1
 }
 
 void CPU::context_load_helper()
