@@ -18,7 +18,7 @@ private:
 
 public:
     Stub_Mutex(){
-        Message * msg = new Message(Message::ENTITY::MUTEX, Message::MUTEX_CREATE);
+        Message * msg = new Message(0, Message::ENTITY::MUTEX, Message::MUTEX_CREATE);
         msg->act();
         id = msg->result();
     }
@@ -42,7 +42,7 @@ private:
 public:
     // handler it self
     Stub_Mutex_Handler(){
-        Message * msg = new Message(Message::ENTITY::MUTEX, Message::MUTEX_HANDLER);
+        Message * msg = new Message(id, Message::ENTITY::MUTEX, Message::MUTEX_HANDLER);
         msg->act();
         id = msg->result();
     }

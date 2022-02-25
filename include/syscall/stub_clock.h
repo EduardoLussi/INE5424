@@ -21,7 +21,7 @@ private:
 
 public:
     Stub_Clock(){
-        Message * msg = new Message(CLOCK, Message::CLOCK_CREATE);
+        Message * msg = new Message(0, CLOCK, Message::CLOCK_CREATE);
         msg->act();
         id = msg->result();
     }

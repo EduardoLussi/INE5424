@@ -25,14 +25,14 @@ public:
 
     template<typename ... Tn>
     Stub_Address_Space(Tn ... an){
-        Message * msg = new Message(Message::ENTITY::ADDRESS_SPACE, Message::ADDRESS_SPACE_CREATE);
+        Message * msg = new Message(0, Message::ENTITY::ADDRESS_SPACE, Message::ADDRESS_SPACE_CREATE);
         msg->act();
         id = msg->result();
     }
 
     template<typename ... Tn>
     Stub_Address_Space(MMU::Page_Directory * pd, Tn ... an){
-        Message * msg = new Message(Message::ENTITY::ADDRESS_SPACE, Message::ADDRESS_SPACE_CREATE_PD, pd);
+        Message * msg = new Message(0, Message::ENTITY::ADDRESS_SPACE, Message::ADDRESS_SPACE_CREATE_PD, pd);
         msg->act();
         id = msg->result();
     }

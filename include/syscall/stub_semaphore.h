@@ -20,7 +20,7 @@ private:
 public:
     template<typename ... Tn>
     Stub_Semaphore(int v, Tn ... an){
-        Message * msg = new Message(Message::ENTITY::SEMAPHORE, Message::SEMAPHORE_CREATE, v);
+        Message * msg = new Message(0, Message::ENTITY::SEMAPHORE, Message::SEMAPHORE_CREATE, v);
         msg->act();
         id = msg->result();
     }

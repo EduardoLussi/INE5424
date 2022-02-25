@@ -22,13 +22,13 @@ public:
     void set_id(long int _id) {id = _id;}
 
     Stub_Segment(unsigned int bytes, MMU::Flags flags = MMU::Flags::APP){
-        Message * msg = new Message(Message::ENTITY::SEGMENT, Message::SEGMENT_CREATE, bytes, flags);
+        Message * msg = new Message(0, Message::ENTITY::SEGMENT, Message::SEGMENT_CREATE, bytes, flags);
         msg->act();
         id = msg->result();
     }
 
     Stub_Segment(Segment::Phy_Addr phy_addr, unsigned int bytes, MMU::Flags flags = MMU::Flags::APP){
-        Message * msg = new Message(Message::ENTITY::SEGMENT, Message::SEGMENT_CREATE_PHY, phy_addr, bytes, flags);
+        Message * msg = new Message(0, Message::ENTITY::SEGMENT, Message::SEGMENT_CREATE_PHY, phy_addr, bytes, flags);
         msg->act();
         id = msg->result();
     }

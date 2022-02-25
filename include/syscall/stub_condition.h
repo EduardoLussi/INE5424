@@ -20,7 +20,7 @@ private:
 public:
     template<typename ... Tn>
     Stub_Condition(Tn ... an){
-        Message * msg = new Message(Message::ENTITY::CONDITION, Message::CONDITION_CREATE);
+        Message * msg = new Message(0, Message::ENTITY::CONDITION, Message::CONDITION_CREATE);
         msg->act();
         id = msg->result();
     }

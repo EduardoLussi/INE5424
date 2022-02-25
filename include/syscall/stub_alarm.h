@@ -22,7 +22,7 @@ private:
 public:
     template<typename ... Tn>
     Stub_Alarm(const Microsecond & time, Handler * handler, unsigned int times = 1, Tn ... an){
-        Message * msg = new Message(Message::ENTITY::ALARM, Message::ALARM_CREATE, time, handler, times);
+        Message * msg = new Message(0, Message::ENTITY::ALARM, Message::ALARM_CREATE, time, handler, times);
         msg->act();
         id = msg->result();
     }
@@ -47,7 +47,7 @@ public:
     }
 
     static Hertz frequency() {
-        Message *msg = new Message(Message::ENTITY::ALARM, Message::ALARM_FREQUENCY);
+        Message *msg = new Message(id, Message::ENTITY::ALARM, Message::ALARM_FREQUENCY);
         msg->act();
         return (msg->result());
     }

@@ -24,7 +24,7 @@ public:
    
     template<typename ... Tn>
     Stub_Task(Stub_Segment * cs, Stub_Segment * ds, int (* entry)(Tn ...), const Address_Space::Log_Addr & code, const Address_Space::Log_Addr & data, Tn ... an){
-        Message * msg = new Message(Message::ENTITY::TASK, Message::TASK_CREATE, cs, ds, entry, code, data);
+        Message * msg = new Message(0, Message::ENTITY::TASK, Message::TASK_CREATE, cs, ds, entry, code, data);
         msg->act();
         _id = msg->result();
     }

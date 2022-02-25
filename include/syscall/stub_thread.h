@@ -76,7 +76,7 @@ public:
     }
 
     static Stub_Thread * self() {
-        Message * msg = new Message(Message::ENTITY::THREAD, Message::THREAD_SELF);
+        Message * msg = new Message(0, Message::ENTITY::THREAD, Message::THREAD_SELF);
         msg->act();
         long int id = msg->result();
         Stub_Thread * new_stub_thread = new Stub_Thread();
@@ -85,12 +85,12 @@ public:
     }
 
     static void yield() {
-        Message * msg = new Message(Message::ENTITY::THREAD, Message::THREAD_YIELD);
+        Message * msg = new Message(0, Message::ENTITY::THREAD, Message::THREAD_YIELD);
         msg->act();
     }
 
     static void exit(int status = 0) {
-        Message * msg = new Message(Message::ENTITY::THREAD, Message::THREAD_EXIT, status);
+        Message * msg = new Message(0, Message::ENTITY::THREAD, Message::THREAD_EXIT, status);
         msg->act();
     }
 };

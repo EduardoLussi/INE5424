@@ -117,9 +117,6 @@ public:
     };
 public:
     template<typename ... Tn>
-    Message(unsigned long int entity, unsigned long int method, Tn ... an): _entity(entity), _method(method) {set_params(an ...);}
-
-    template<typename ... Tn>
     Message(unsigned long int id, unsigned long int entity, unsigned long int method, Tn ... an): _id(id), _entity(entity), _method(method) {set_params(an ...);}
 
     template<typename ... Tn>

@@ -21,7 +21,7 @@ private:
 
 public:
     Stub_Delay(const Microsecond & time){
-        Message * msg = new Message(Message::ENTITY::DELAY, Message::DELAY_CREATE);
+        Message * msg = new Message(0, Message::ENTITY::DELAY, Message::DELAY_CREATE);
         msg->act();
         id = msg->result();
     }
