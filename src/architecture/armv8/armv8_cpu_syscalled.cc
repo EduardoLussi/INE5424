@@ -9,7 +9,7 @@ __BEGIN_SYS
 
 void CPU::syscalled()
 {
-    //if(Traits<Build>::MODE == Traits<Build>::KERNEL)
+   // if(Traits<Build>::MODE == Traits<Build>::KERNEL)
         reinterpret_cast<Agent *>(reinterpret_cast<void *>(CPU::r1()))->exec();             // the message to EPOS Framework is passed on register r1
 }
 

@@ -83,7 +83,7 @@ public:
         Page_Flags(unsigned int f) : _flags(f) {}
         Page_Flags(Flags f) : _flags(nG |
                                      ((f & Flags::RW)  ? RW_SYS : RO_SYS) |
-                                     // ((f & Flags::USR) ? RW_USR : 0) | // as we are in EL1, this will brake system
+                                     ((f & Flags::USR) ? RW_USR : 0) | 
                                      ((f & Flags::CWT) ? CWT  : CWB) |
                                      ((f & Flags::CD)  ? CD   : 0) |
                                      ((f & Flags::EX)  ? 0    : XN) |

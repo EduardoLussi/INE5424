@@ -33,7 +33,7 @@ public:
         // but we first reset the timer to avoid getting a time interrupt during load()
         if(Traits<Timer>::enabled)
             Timer::reset();
-
+        
         first->_context->load();
     }
 };
