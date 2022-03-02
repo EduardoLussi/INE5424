@@ -84,7 +84,7 @@ private:
             case Message::THREAD_CREATE: {
                 int (* entry)();
                 get_params(entry);
-                Thread * t = new (SYSTEM) Thread(Thread::Configuration(Thread::READY, Thread::NORMAL), entry);
+                Thread * t = new (SYSTEM) Thread(Thread::Configuration(Thread::READY, Thread::NORMAL, 0, 0), entry);
                 result(reinterpret_cast<unsigned long int>(t));
             }   break;
             case Message::THREAD_CREATE_CONFIG: {

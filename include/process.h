@@ -159,7 +159,7 @@ protected:
 
         _current = this;
         activate();
-        _main = new (SYSTEM) Thread(Thread::Configuration(Thread::RUNNING, Thread::MAIN, this), entry, an ...);
+        _main = new (SYSTEM) Thread(Thread::Configuration(Thread::RUNNING, Thread::MAIN, this, 0), entry, an ...);
     }
 
 public:
@@ -168,7 +168,7 @@ public:
     : _as (new (SYSTEM) Address_Space), _cs(cs), _ds(ds), _code(_as->attach(_cs, code)), _data(_as->attach(_ds, data)), _entry(entry) {
         db<Task>(TRC) << "Task(as=" << _as << ",cs=" << _cs << ",ds=" << _ds << ",entry=" << _entry << ",code=" << _code << ",data=" << _data << ") => " << this << endl;
 
-        _main = new (SYSTEM) Thread(Thread::Configuration(Thread::READY, Thread::MAIN, this), entry, an ...);
+        _main = new (SYSTEM) Thread(Thread::Configuration(Thread::READY, Thread::MAIN, this, 0), entry, an ...);
     }
     
     template<typename ... Tn>
@@ -176,7 +176,7 @@ public:
     : _as (new (SYSTEM) Address_Space), _cs(cs), _ds(ds), _code(_as->attach(_cs, code)), _data(_as->attach(_ds, data)), _entry(entry) {
         db<Task>(TRC) << "Task(as=" << _as << ",cs=" << _cs << ",ds=" << _ds << ",entry=" << _entry << ",code=" << _code << ",data=" << _data << ") => " << this << endl;
 
-        _main = new (SYSTEM) Thread(Thread::Configuration(conf.state, conf.criterion, this), entry, an ...);
+        _main = new (SYSTEM) Thread(Thread::Configuration(conf.state, conf.criterion, this, 0), entry, an ...);
     }
     
     template<typename ... Tn>
@@ -288,7 +288,7 @@ private:
 // Thread inline methods that depend on Task
 template<typename ... Tn>
 inline Thread::Thread(int (* entry)(Tn ...), Tn ... an)
-: _task(Task::self()), _state(READY), _waiting(0), _joining(0), _link(this, NORMAL)
+: _task(Task::self()), _user_stack(0), _state(READY), _waiting(0), _joining(0), _link(this, NORMAL)
 {
     constructor_prologue(STACK_SIZE);
     _context = CPU::init_stack(0, _stack + STACK_SIZE, &__exit, entry, an ...);

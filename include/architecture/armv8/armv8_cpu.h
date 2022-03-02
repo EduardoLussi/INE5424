@@ -139,7 +139,7 @@ public:
     {
     public:
         Context(){}
-        Context(Log_Addr entry, Log_Addr exit, Log_Addr usp): _flags(FLAG_SP_ELn | FLAG_EL1 | FLAG_A | FLAG_D), _lr(exit), _pc(entry) {
+        Context(Log_Addr entry, Log_Addr exit, Log_Addr usp): _flags(FLAG_SP_ELn | (usp ? FLAG_EL0 : FLAG_EL1) | FLAG_A | FLAG_D), _lr(exit), _pc(entry) {
             if(Traits<Build>::hysterically_debugged || Traits<Thread>::trace_idle) {
                 _x0 = 0; _x1 = 1; _x2 = 2; _x3 = 3; _x4 = 4; _x5 = 5; _x6 = 6; _x7 = 7; _x8 = 8; _x9 = 9; _x10 = 10; _x11 = 11; _x12 = 12; _x13 = 13; _x14 = 14; _x15 = 15;
                 _x16 = 16; _x17 = 17; _x18 = 18; _x19 = 19; _x20 = 20; _x21 = 21; _x22 = 22; _x23 = 23; _x24 = 24; _x25 = 25; _x26 = 26; _x27 = 27; _x28 = 28; _x29 = 29;
