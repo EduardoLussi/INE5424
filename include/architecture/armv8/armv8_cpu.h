@@ -192,7 +192,11 @@ public:
             return os;
         }
     public:
+        Reg _usp;
+        Reg _ulr;
         Reg _flags;
+        Reg _lr;
+        Reg _pc;
         Reg _x0;
         Reg _x1;
         Reg _x2;
@@ -223,10 +227,6 @@ public:
         Reg _x27;
         Reg _x28;
         Reg _x29;
-        Reg _lr;
-        Reg _pc;
-        Reg _usp;
-        Reg _ulr;
     };
 
 protected:
@@ -481,7 +481,7 @@ public:
     {
     public:
         Context() {}
-        Context(Log_Addr entry, Log_Addr exit, Log_Addr usp): Base::Context(entry, exit, 0) {}
+        Context(Log_Addr entry, Log_Addr exit, Log_Addr usp): Base::Context(entry, exit, usp) {}
 
         void save() volatile;
         void load() const volatile;
