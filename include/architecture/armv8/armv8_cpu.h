@@ -125,9 +125,9 @@ public:
         INTERMEDIATE_ADDR_SIZE_32   = 0b0ULL    << 32,
         INTERMEDIATE_ADDR_SIZE_36   = 0b1ULL    << 32,
         INTERMEDIATE_ADDR_SIZE_40   = 0b10ULL   << 32,
-        INTERMEDIATE_ADDR_SIZE_42   = 0b11ULL   << 32, 
-        INTERMEDIATE_ADDR_SIZE_44   = 0b100ULL  << 32, 
-        INTERMEDIATE_ADDR_SIZE_48   = 0b101ULL  << 32, 
+        INTERMEDIATE_ADDR_SIZE_42   = 0b11ULL   << 32,
+        INTERMEDIATE_ADDR_SIZE_44   = 0b100ULL  << 32,
+        INTERMEDIATE_ADDR_SIZE_48   = 0b101ULL  << 32,
         ASID_SIZE_8                 = 0b0ULL    << 36,
         ASID_SIZE_16                = 0b1ULL    << 36,
         TTBR0_TBI                   = 0b1ULL    << 37, // ignore top byte when calculating address on TTBR0
@@ -139,7 +139,7 @@ public:
     {
     public:
         Context(){}
-        Context(Log_Addr entry, Log_Addr exit, Log_Addr usp): _flags(FLAG_SP_ELn | (usp ? FLAG_EL0 : FLAG_EL1) | FLAG_A | FLAG_D), _lr(exit), _pc(entry) {
+        Context(Log_Addr entry, Log_Addr exit, Log_Addr usp): _flags((usp ? FLAG_EL0 : (FLAG_EL1 | FLAG_SP_ELn)) | FLAG_A | FLAG_D), _lr(exit), _pc(entry) {
             if(Traits<Build>::hysterically_debugged || Traits<Thread>::trace_idle) {
                 _x0 = 0; _x1 = 1; _x2 = 2; _x3 = 3; _x4 = 4; _x5 = 5; _x6 = 6; _x7 = 7; _x8 = 8; _x9 = 9; _x10 = 10; _x11 = 11; _x12 = 12; _x13 = 13; _x14 = 14; _x15 = 15;
                 _x16 = 16; _x17 = 17; _x18 = 18; _x19 = 19; _x20 = 20; _x21 = 21; _x22 = 22; _x23 = 23; _x24 = 24; _x25 = 25; _x26 = 26; _x27 = 27; _x28 = 28; _x29 = 29;
@@ -513,7 +513,7 @@ public:
     using CPU_Common::finc;	// TODO
     using CPU_Common::fdec;	// TODO
     using CPU_Common::cas;	// TODO
- 
+
     static void smp_barrier(unsigned long cores = cores()) { CPU_Common::smp_barrier<&finc>(cores, id()); }
 
     static void switch_context(Context ** o, Context * n);

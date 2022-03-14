@@ -83,11 +83,14 @@ public:
         Page_Flags(unsigned int f) : _flags(f) {}
         Page_Flags(Flags f) : _flags(nG |
                                      ((f & Flags::RW)  ? RW_SYS : RO_SYS) |
-                                     ((f & Flags::USR) ? RW_USR : 0) | 
+                                     ((f & Flags::USR) ? RW_USR : 0) |
                                      ((f & Flags::CWT) ? CWT  : CWB) |
                                      ((f & Flags::CD)  ? CD   : 0) |
                                      ((f & Flags::EX)  ? 0    : XN) |
-                                     ((f & Flags::IO)  ? IO : 0) ) {}
+                                     ((f & Flags::IO)  ? IO : 0) ) {
+                                         if ((f == Flags::APP) || (f == Flags::APPC) || (f == Flags::SYS))
+                                            _flags = f;
+                                     }
 
         operator unsigned int() const { return _flags; }
 
@@ -256,7 +259,7 @@ template<unsigned int ENTRIES>
 
             for(unsigned int i = directory(PHY_MEM); i < directory(APP_LOW); i++)
                 (*_pd)[i] = (*_master)[i];
-            
+
             for(unsigned int i = directory(SYS); i < PD_ENTRIES; i++)
                 (*_pd)[i] = (*_master)[i];
         }
