@@ -150,6 +150,8 @@ void IC::sync()
         IC::others();
         break;
     }
+    ASM("       .global _int_leave              \n"
+        "_int_leave:                            \n");
     CPU::Context::pop(true);
 }
 

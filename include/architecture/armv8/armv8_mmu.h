@@ -88,8 +88,12 @@ public:
                                      ((f & Flags::CD)  ? CD   : 0) |
                                      ((f & Flags::EX)  ? 0    : XN) |
                                      ((f & Flags::IO)  ? IO : 0) ) {
-                                         if ((f == Flags::APP) || (f == Flags::APPC) || (f == Flags::SYS))
-                                            _flags = f;
+                                         if (f == Flags::APP)
+                                            _flags = Page_Flags::APP;
+                                        else if (f == Flags::APPC)
+                                            _flags = Page_Flags::APPC;
+                                        else if (f == Flags::SYS)
+                                            _flags = Page_Flags::SYS;
                                      }
 
         operator unsigned int() const { return _flags; }

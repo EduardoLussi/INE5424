@@ -8,6 +8,8 @@
 #include <architecture/armv7/armv7_cpu.h>
 #undef __cpu_common_only__
 
+extern "C" { void _int_leave(); }
+
 __BEGIN_SYS
 
 class ARMv8;
@@ -140,7 +142,7 @@ public:
     {
     public:
         Context(){}
-        Context(Log_Addr entry, Log_Addr exit, Log_Addr usp): _usp(usp), _ulr(exit), _flags((usp ? FLAG_EL0 : (FLAG_EL1 | FLAG_SP_ELn)) | FLAG_A | FLAG_D), _lr(exit), _pc(entry) {
+        Context(Log_Addr entry, Log_Addr exit, Log_Addr usp): _flags((usp ? FLAG_EL0 : (FLAG_EL1 | FLAG_SP_ELn)) | FLAG_A | FLAG_D), _lr(exit), _pc(entry), _usp(usp) {
             if(Traits<Build>::hysterically_debugged || Traits<Thread>::trace_idle) {
                 _x0 = 0; _x1 = 1; _x2 = 2; _x3 = 3; _x4 = 4; _x5 = 5; _x6 = 6; _x7 = 7; _x8 = 8; _x9 = 9; _x10 = 10; _x11 = 11; _x12 = 12; _x13 = 13; _x14 = 14; _x15 = 15;
                 _x16 = 16; _x17 = 17; _x18 = 18; _x19 = 19; _x20 = 20; _x21 = 21; _x22 = 22; _x23 = 23; _x24 = 24; _x25 = 25; _x26 = 26; _x27 = 27; _x28 = 28; _x29 = 29;
@@ -187,16 +189,11 @@ public:
                << ",pc="  << c._pc
                << ",psr=" << c._flags
                << ",usp=" << c._usp
-               << ",ulr=" << c._ulr
                << "}" << dec;
             return os;
         }
     public:
-        Reg _usp;
-        Reg _ulr;
         Reg _flags;
-        Reg _lr;
-        Reg _pc;
         Reg _x0;
         Reg _x1;
         Reg _x2;
@@ -227,6 +224,9 @@ public:
         Reg _x27;
         Reg _x28;
         Reg _x29;
+        Reg _lr;
+        Reg _pc;
+        Reg _usp;
     };
 
 protected:
@@ -373,22 +373,22 @@ public:
 inline void ARMv8_A::Context::push(bool interrupt)
 {
     if (interrupt) {
-        ASM("   str   x30, [sp, #-8]!           // push LR                      \t\n\
-                stp   x28, x29, [sp, #-16]!                                     \t\n\
-                stp   x26, x27, [sp, #-16]!                                     \t\n\
-                stp   x24, x25, [sp, #-16]!                                     \t\n\
-                stp   x22, x23, [sp, #-16]!                                     \t\n\
-                stp   x20, x21, [sp, #-16]!                                     \t\n\
-                stp   x18, x19, [sp, #-16]!                                     \t\n\
-                stp   x16, x17, [sp, #-16]!                                     \t\n\
-                stp   x14, x15, [sp, #-16]!                                     \t\n\
-                stp   x12, x13, [sp, #-16]!                                     \t\n\
-                stp   x10, x11, [sp, #-16]!                                     \t\n\
-                stp    x8,  x9, [sp, #-16]!                                     \t\n\
-                stp    x6,  x7, [sp, #-16]!                                     \t\n\
-                stp    x4,  x5, [sp, #-16]!                                     \t\n\
-                stp    x2,  x3, [sp, #-16]!                                     \t\n\
-                stp    x0,  x1, [sp, #-16]!                                     \t" : : : "cc");
+        ASM(R"( str   x30, [sp, #-8]!           // push LR            
+                stp   x28, x29, [sp, #-16]!                           
+                stp   x26, x27, [sp, #-16]!                           
+                stp   x24, x25, [sp, #-16]!                           
+                stp   x22, x23, [sp, #-16]!                           
+                stp   x20, x21, [sp, #-16]!                           
+                stp   x18, x19, [sp, #-16]!                           
+                stp   x16, x17, [sp, #-16]!                           
+                stp   x14, x15, [sp, #-16]!                           
+                stp   x12, x13, [sp, #-16]!                           
+                stp   x10, x11, [sp, #-16]!                           
+                stp    x8,  x9, [sp, #-16]!                           
+                stp    x6,  x7, [sp, #-16]!                           
+                stp    x4,  x5, [sp, #-16]!                           
+                stp    x2,  x3, [sp, #-16]!                           
+                stp    x0,  x1, [sp, #-16]!                 )" : : : "cc");
     } else {
         ASM("   str   x30, [sp, #-8]!           // make room for PC             \t\n\
                 str   x30, [sp, #-8]!           // push LR                      \t\n\
@@ -427,45 +427,45 @@ inline void ARMv8_A::Context::push(bool interrupt)
 inline void ARMv8_A::Context::pop(bool interrupt)
 {
     if (interrupt) {
-        ASM("   ldp    x0,  x1, [sp], #16                                       \t\n\
-                ldp    x2,  x3, [sp], #16                                       \t\n\
-                ldp    x4,  x5, [sp], #16                                       \t\n\
-                ldp    x6,  x7, [sp], #16                                       \t\n\
-                ldp    x8,  x9, [sp], #16                                       \t\n\
-                ldp   x10, x11, [sp], #16                                       \t\n\
-                ldp   x12, x13, [sp], #16                                       \t\n\
-                ldp   x14, x15, [sp], #16                                       \t\n\
-                ldp   x16, x17, [sp], #16                                       \t\n\
-                ldp   x18, x19, [sp], #16                                       \t\n\
-                ldp   x20, x21, [sp], #16                                       \t\n\
-                ldp   x22, x23, [sp], #16                                       \t\n\
-                ldp   x24, x25, [sp], #16                                       \t\n\
-                ldp   x26, x27, [sp], #16                                       \t\n\
-                ldp   x28, x29, [sp], #16                                       \t\n\
-                ldr   x30, [sp], #8                                             \t" : : : "cc");
+        ASM(R"( ldp    x0,  x1, [sp], #16                                       
+                ldp    x2,  x3, [sp], #16                                       
+                ldp    x4,  x5, [sp], #16                                       
+                ldp    x6,  x7, [sp], #16                                       
+                ldp    x8,  x9, [sp], #16                                       
+                ldp   x10, x11, [sp], #16                                       
+                ldp   x12, x13, [sp], #16                                       
+                ldp   x14, x15, [sp], #16                                       
+                ldp   x16, x17, [sp], #16                                       
+                ldp   x18, x19, [sp], #16                                       
+                ldp   x20, x21, [sp], #16                                       
+                ldp   x22, x23, [sp], #16                                       
+                ldp   x24, x25, [sp], #16                                       
+                ldp   x26, x27, [sp], #16                                       
+                ldp   x28, x29, [sp], #16                                       
+                ldr   x30, [sp], #8         )" : : : "cc");
     } else {
-        ASM("   ldr   x30, [sp], #8             // pop PSR into x30             \t\n\
-                ldp    x0,  x1, [sp], #16                                       \t\n\
-                ldp    x2,  x3, [sp], #16                                       \t\n\
-                ldp    x4,  x5, [sp], #16                                       \t\n\
-                ldp    x6,  x7, [sp], #16                                       \t\n\
-                ldp    x8,  x9, [sp], #16                                       \t\n\
-                ldp   x10, x11, [sp], #16                                       \t\n\
-                ldp   x12, x13, [sp], #16                                       \t\n\
-                ldp   x14, x15, [sp], #16                                       \t\n\
-                ldp   x16, x17, [sp], #16                                       \t\n\
-                ldp   x18, x19, [sp], #16                                       \t\n\
-                ldp   x20, x21, [sp], #16                                       \t\n\
-                ldp   x22, x23, [sp], #16                                       \t\n\
-                ldp   x24, x25, [sp], #16                                       \t\n\
-                ldp   x26, x27, [sp], #16                                       \t\n\
-                ldp   x28, x29, [sp], #16                                       \t\n\
-                msr   spsr_el1, x30                                             \t\n\
-                ldr   x30, [sp], #8             // pop LR to get to PC          \t\n\
-                ldr   x30, [sp], #8             // pop PC                       \t\n\
-                msr   ELR_EL1, x30                                              \t\n\
-                ldr   x30, [sp, #-16]           // pop LR                       \t\n\
-                eret                                                            \t" : : : "cc");
+        ASM(R"( ldr   x30, [sp], #8             // pop PSR into x30             
+                ldp    x0,  x1, [sp], #16                                       
+                ldp    x2,  x3, [sp], #16                                       
+                ldp    x4,  x5, [sp], #16                                       
+                ldp    x6,  x7, [sp], #16                                       
+                ldp    x8,  x9, [sp], #16                                       
+                ldp   x10, x11, [sp], #16                                       
+                ldp   x12, x13, [sp], #16                                       
+                ldp   x14, x15, [sp], #16                                       
+                ldp   x16, x17, [sp], #16                                       
+                ldp   x18, x19, [sp], #16                                       
+                ldp   x20, x21, [sp], #16                                       
+                ldp   x22, x23, [sp], #16                                       
+                ldp   x24, x25, [sp], #16                                       
+                ldp   x26, x27, [sp], #16                                       
+                ldp   x28, x29, [sp], #16                                       
+                msr   spsr_el1, x30                                             
+                ldr   x30, [sp], #8             // pop LR to get to PC          
+                ldr   x30, [sp], #8             // pop PC                       
+                msr   ELR_EL1, x30                                                                               
+                ldr   x30, [sp, #-16]           // pop LR                       
+                eret                                                            )" : : : "cc");
     }
 }
 
@@ -526,8 +526,13 @@ public:
     template<typename ... Tn>
     static Context * init_stack(Log_Addr usp, Log_Addr sp, void (* exit)(), int (* entry)(Tn ...), Tn ... an) {
         sp -= sizeof(Context);
-        Context * ctx = new(sp) Context(entry, exit, usp); // init_stack is called with usp = 0 for kernel threads
-        init_stack_helper(&ctx->_x0, an ...);
+        Context * ctx0 = new(sp) Context(entry, exit, usp); // init_stack is called with usp = 0 for kernel threads
+        init_stack_helper(&ctx0->_x0, an ...);
+        
+        sp -= sizeof(Context);
+        Context * ctx = new(sp) Context(&_int_leave, 0, 0); // init_stack is called with usp = 0 for kernel threads
+        ctx->_x0 = 0;
+
         return ctx;
     }
 
