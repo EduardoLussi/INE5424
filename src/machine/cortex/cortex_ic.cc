@@ -152,7 +152,7 @@ void IC::sync()
     }
     ASM("       .global _int_leave              \n"
         "_int_leave:                            \n");
-    CPU::Context::pop_usr_mode();
+    CPU::Context::pop(true);
 }
 
 void IC::others()
