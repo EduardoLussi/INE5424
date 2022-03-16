@@ -151,6 +151,7 @@ public:
 
         static void pop(bool interrupt = false);
         static void push(bool interrupt = false);
+        static void pop_usr_mode();
 
         friend OStream & operator<<(OStream & os, const Context & c) {
             os << hex
@@ -471,8 +472,6 @@ inline void ARMv8_A::Context::pop(bool interrupt)
 
 inline void ARMv8_A::Context::pop_usr_mode()
 {
-    ASM("       .global _int_leave              \n"
-        "_int_leave:                            \n");
     ASM(R"(
                 ldr   x30, [sp], #8             // pop USP into x30
                 ldr   x30, [sp], #8             // pop PSR into x30
