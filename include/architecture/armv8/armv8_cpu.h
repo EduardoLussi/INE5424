@@ -8,8 +8,6 @@
 #include <architecture/armv7/armv7_cpu.h>
 #undef __cpu_common_only__
 
-extern "C" { void _int_leave(); }
-
 __BEGIN_SYS
 
 class ARMv8;
@@ -151,6 +149,8 @@ public:
 
         static void pop(bool interrupt = false);
         static void push(bool interrupt = false);
+
+        static void _int_leave();
 
         friend OStream & operator<<(OStream & os, const Context & c) {
             os << hex
@@ -467,13 +467,43 @@ inline void ARMv8_A::Context::pop(bool interrupt)
                 ldp   x24, x25, [sp], #16
                 ldp   x26, x27, [sp], #16
                 ldp   x28, x29, [sp], #16
-                 msr   spsr_el1, x30
+                msr   spsr_el1, x30
                 ldr   x30, [sp], #8             // pop LR to get to PC
                 ldr   x30, [sp], #8             // pop PC
                 msr   ELR_EL1, x30
                 eret
                 )" : : : "cc");
     }
+}
+
+inline void ARMv8_A::Context::_int_leave()
+{
+    ASM(R"(
+            ldr   x30, [sp], #8             // pop USP into x30
+            msr   sp_el0, x30
+            ldr   x30, [sp], #8             // pop PSR into x30
+            ldp    x0,  x1, [sp], #16
+            ldp    x2,  x3, [sp], #16
+            ldp    x4,  x5, [sp], #16
+            ldp    x6,  x7, [sp], #16
+            ldp    x8,  x9, [sp], #16
+            ldp   x10, x11, [sp], #16
+            ldp   x12, x13, [sp], #16
+            ldp   x14, x15, [sp], #16
+            ldp   x16, x17, [sp], #16
+            ldp   x18, x19, [sp], #16
+            ldp   x20, x21, [sp], #16
+            ldp   x22, x23, [sp], #16
+            ldp   x24, x25, [sp], #16
+            ldp   x26, x27, [sp], #16
+            ldp   x28, x29, [sp], #16
+            msr   spsr_el1, x30
+            ldr   x30, [sp], #8             // pop LR to get to PC
+            ldr   x30, [sp], #8             // pop PC
+            msr   ELR_EL1, x30
+            eret
+            )" : : : "cc");
+    
 }
 
 class CPU: public ARMv8_A
@@ -537,7 +567,7 @@ public:
         init_stack_helper(&ctx0->_x0, an ...);
 
         sp -= sizeof(Context);
-        Context * ctx = new(sp) Context(&_int_leave, 0, 0); // init_stack is called with usp = 0 for kernel threads
+        Context * ctx = new(sp) Context(&CPU::ARMv8_A::Context::_int_leave, 0, 0); // init_stack is called with usp = 0 for kernel threads
         ctx->_x0 = 0;
 
         return ctx;

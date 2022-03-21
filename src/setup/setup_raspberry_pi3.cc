@@ -1079,7 +1079,7 @@ void _vector_table()
                         str x30, [sp, #-8]!                                     \t\n\
                         mrs x30, ELR_EL1                                        \t\n\
                         str x30, [sp, #-8]!                                     \t\n\
-                        ldr x29, .ic_entry                                      \t\n\
+                        ldr x29, .ic_sync                                       \t\n\
                         blr x29                                                 \t\n\
                         ldr x30, [sp], #8                                       \t\n\
                         msr ELR_EL1, x30                                        \t\n\
@@ -1133,7 +1133,7 @@ void _vector_table()
                         str x30, [sp, #-8]!                                     \t\n\
                         mrs x30, ESR_EL1                                        \t\n\
                         str x30, [sp, #-8]!                                     \t\n\
-                        ldr x29, .ic_others                                     \t\n\
+                        ldr x29, .ic_sync                                       \t\n\
                         blr x29                                                 \t\n\
                         ldr x30, [sp], #8                                       \t\n\
                         msr ESR_EL1, x30                                        \t\n\
@@ -1206,7 +1206,7 @@ void _vector_table()
                         str x30, [sp, #-8]!                                     \t\n\
                         mrs x30, ESR_EL1                                        \t\n\
                         str x30, [sp, #-8]!                                     \t\n\
-                        ldr x29, .ic_others                                     \t\n\
+                        ldr x29, .ic_sync                                       \t\n\
                         blr x29                                                 \t\n\
                         ldr x30, [sp], #8                                       \t\n\
                         msr ESR_EL1, x30                                        \t\n\
@@ -1279,7 +1279,7 @@ void _vector_table()
                         str x30, [sp, #-8]!                                     \t\n\
                         mrs x30, ESR_EL1                                        \t\n\
                         str x30, [sp, #-8]!                                     \t\n\
-                        ldr x29, .ic_others                                     \t\n\
+                        ldr x29, .ic_sync                                       \t\n\
                         blr x29                                                 \t\n\
                         ldr x30, [sp], #8                                       \t\n\
                         msr ESR_EL1, x30                                        \t\n\
@@ -1344,6 +1344,7 @@ void _vector_table()
                                                                                 \t\n\
                         .balign 128                                             \t\n\
         .ic_entry: .dword 0x0                                                   \t\n\
+        .ic_sync: .dword 0x0                                                    \t\n\
         .ic_others: .dword 0x0                                                  \t");
 }
 
