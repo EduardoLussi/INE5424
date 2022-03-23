@@ -27,23 +27,7 @@ public:
         id = msg->result();
     }
 
-    /*
-    template<typename ... Tn>
-    Stub_Thread(const Configuration & conf, int (* entry)(Tn ...), Tn ... an){
-        Message * msg = new Message(THREAD, Message::THREAD_CREATE, conf, entry);
-        msg->act();
-        id = msg->result();
-    }
-    */
-
     void set_id(long int _id){id = _id;};
-
-    /*
-    void priority(const Criterion & p) {
-        Message * msg = new Message(id, Message::ENTITY::THREAD, Message::THREAD_PRIORITY1, p);
-        msg->act();
-    }
-    */
 
     Stub_Task * task() {
         Message * msg = new Message(id, Message::ENTITY::THREAD, Message::THREAD_TASK);

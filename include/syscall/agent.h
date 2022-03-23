@@ -95,13 +95,6 @@ private:
                 get_params(entry);
                 new (SYSTEM) Thread(entry);
             }   break;
-            /*
-            case Message::THREAD_PRIORITY1: {
-                Thread * t = reinterpret_cast<Thread *>(id());
-                Criterion & p;
-                get_params(p);
-                t->priority(p);
-            } */
             case Message::THREAD_TASK: {
                 Thread * t = reinterpret_cast<Thread *>(id());
                 Task * task = t->task();

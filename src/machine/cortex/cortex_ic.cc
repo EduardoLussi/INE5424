@@ -10,6 +10,7 @@
 extern "C" { void _int_entry() __attribute__ ((naked, nothrow, alias("_ZN4EPOS1S2IC5entryEv"))); }
 extern "C" { void _eoi(unsigned int) __attribute__ ((alias("_ZN4EPOS1S2IC3eoiEj"))); }
 extern "C" { void __exit(); }
+extern "C" { void _exit(int s); }
 
 __BEGIN_SYS
 
@@ -147,7 +148,7 @@ void IC::sync()
         CPU::syscalled();
         break;
     case 0b100100:
-        __exit();
+        _exit(-1);
         break;
     default:
         IC::others();

@@ -27,14 +27,14 @@ int func_a(){
     m->lock();
     cout << "Funcao A" << endl;
     m->unlock();
-    cout << "Bye A" <<endl;
+    cout << "Bye A" << endl;
     return 0;
 }
 
 int func_b(){
     m->lock();
-    cout << "Funcao B" <<endl;
-    cout << "Bye B" <<endl;
+    cout << "Funcao B" << endl;
     m->unlock();
+    cout << "Bye B" << endl;
     return 0;
 }

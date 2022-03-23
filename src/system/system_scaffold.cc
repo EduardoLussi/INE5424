@@ -6,6 +6,7 @@
 #include <memory.h>
 #include <process.h>
 #include <system.h>
+#include <syscall/message.h>
 
 extern char __boot_time_system_info[];
 
