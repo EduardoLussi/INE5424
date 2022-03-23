@@ -567,8 +567,8 @@ public:
         init_stack_helper(&ctx0->_x0, an ...);
 
         sp -= sizeof(Context);
-        Context * ctx = new(sp) Context(&CPU::ARMv8_A::Context::_int_leave, 0, 0); // init_stack is called with usp = 0 for kernel threads
-        ctx->_x0 = 0;
+        Context * ctx = new(sp) Context(&CPU::ARMv8_A::Context::_int_leave, 0, 0); // this context will be popped by switch() to reach _int_leave(), which will activate the thread's context
+        ctx->_x0 = 0; // zero fr() for the pop(true) issued by _int_leave()
 
         return ctx;
     }
