@@ -67,7 +67,7 @@ public:
 
             PTE                 = (PAGE_DESCRIPTOR | ACCESS),
 
-            APP                 = (nG | INNER_SHAREABLE | RW_SYS | CWT | PTE),          // S, RWX  All, Normal WT
+            APP                 = (nG | INNER_SHAREABLE | RW_USR | CWT | PTE),          // S, RWX  All, Normal WT
             APPD                = (nG | INNER_SHAREABLE | RW_SYS | CWT | XN  | PTE),    // S, RWnX All, Normal WT
             APPC                = (nG | INNER_SHAREABLE | RW_SYS | CWT | PTE),          // S, RnWX All, Normal WT
             SYS                 = (nG | INNER_SHAREABLE | RW_SYS | PTE),                // S, RWX  SYS, Normal WT
@@ -87,7 +87,14 @@ public:
                                      ((f & Flags::CWT) ? CWT  : CWB) |
                                      ((f & Flags::CD)  ? CD   : 0) |
                                      ((f & Flags::EX)  ? 0    : XN) |
-                                     ((f & Flags::IO)  ? IO : 0) ) {}
+                                     ((f & Flags::IO)  ? IO : 0) ) {
+                                        if (f == Flags::APP)
+                                            _flags = Page_Flags::APP;
+                                        else if (f == Flags::APPC)
+                                            _flags = Page_Flags::APPC;
+                                        else if (f == Flags::SYS)
+                                            _flags = Page_Flags::SYS;
+                                     }
 
         operator unsigned int() const { return _flags; }
 

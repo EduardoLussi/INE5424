@@ -146,6 +146,9 @@ void IC::sync()
     case 0b010101:
         CPU::syscalled();
         break;
+    case 0b100100:
+        __exit();
+        break;
     default:
         IC::others();
         break;

@@ -373,7 +373,8 @@ public:
 inline void ARMv8_A::Context::push(bool interrupt)
 {
     if (interrupt) {
-        ASM(R"( str   x30, [sp, #-8]!           // push LR
+        ASM(R"( 
+                str   x30, [sp, #-8]!           // push LR
                 stp   x28, x29, [sp, #-16]!
                 stp   x26, x27, [sp, #-16]!
                 stp   x24, x25, [sp, #-16]!
