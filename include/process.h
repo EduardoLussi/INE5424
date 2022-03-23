@@ -49,6 +49,7 @@ public:
     // Thread Scheduling Criterion
     typedef Traits<Thread>::Criterion Criterion;
     enum {
+        LOADER  = Criterion::LOADER,
         HIGH    = Criterion::HIGH,
         NORMAL  = Criterion::NORMAL,
         LOW     = Criterion::LOW,
@@ -160,6 +161,7 @@ protected:
         _current = this;
         activate();
         _main = new (SYSTEM) Thread(Thread::Configuration(Thread::RUNNING, Thread::MAIN, this, 0), entry, an ...);
+        //_main = new (SYSTEM) Thread(Thread::Configuration(Thread::RUNNING, Thread::LOADER, Traits<Application>::STACK_SIZE, this), entry, an ...);    // For Loader
     }
 
 public:

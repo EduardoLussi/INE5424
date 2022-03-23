@@ -5,7 +5,9 @@
 
 #include <architecture.h>
 #include <syscall/message.h>
+#include <syscall/stub_segment.h>
 #include <memory.h>
+#include <process.h>
 
 __BEGIN_API
 
@@ -14,9 +16,12 @@ __USING_UTIL
 class Stub_Address_Space
 {
 private:
-    long int id;
+    int id;
     typedef _SYS::Message Message;
-    // typedef Message::ENTITY::SEMAPHORE SEMAPHORE;
+    typedef _SYS::MMU MMU;
+    typedef _SYS::Address_Space Address_Space;
+    typedef _SYS::Segment Segment;
+    typedef _SYS::CPU CPU;
 
 
 public:
@@ -37,24 +42,26 @@ public:
         id = msg->result();
     }
 
-    Address_Space::Log_Addr attach(Segment * seg) {
+    CPU::Log_Addr attach(Stub_Segment * stub_seg) {
+        Segment * seg = reinterpret_cast<Segment *>(stub_seg->get_id());
         Message * msg = new Message(id, Message::ENTITY::ADDRESS_SPACE, Message::ADDRESS_SPACE_ATTACH1, seg);
         msg->act();
         return msg->result();
     }
 
-    Address_Space::Log_Addr attach(Segment * seg, Address_Space::Log_Addr addr) {
+    CPU::Log_Addr attach(Segment * seg, Address_Space::Log_Addr addr) {
         Message * msg = new Message(id, Message::ENTITY::ADDRESS_SPACE, Message::ADDRESS_SPACE_ATTACH2, seg, addr);
         msg->act();
         return msg->result();
     }
 
-    void detach(Segment * seg) {
+    void detach(Stub_Segment * seg) {
         Message * msg = new Message(id, Message::ENTITY::ADDRESS_SPACE, Message::ADDRESS_SPACE_DETACH1, seg);
         msg->act();
     }
 
-    void detach(Segment * seg, Address_Space::Log_Addr addr) {
+    void detach(Stub_Segment * stub_seg, CPU::Log_Addr addr) {
+        Segment * seg = reinterpret_cast<Segment *>(stub_seg->get_id());
         Message * msg = new Message(id, Message::ENTITY::ADDRESS_SPACE, Message::ADDRESS_SPACE_DETACH2, seg, addr);
         msg->act();
     }

@@ -16,7 +16,8 @@ class Stub_Alarm
 private:
     long int id;
     typedef _SYS::Message Message;
-    // typedef Message::ENTITY::SEMAPHORE SEMAPHORE;
+    typedef _SYS::Microsecond Microsecond;
+    typedef _SYS::Hertz Hertz;
 
 
 public:
@@ -52,8 +53,8 @@ public:
         return (msg->result());
     }
 
-    void delay(const Microsecond & time) {
-        Message *msg = new Message(id, Message::ENTITY::ALARM, Message::ALARM_DELAY, time);
+    static void delay(const Microsecond & time) {
+        Message *msg = new Message(0, Message::ENTITY::ALARM, Message::ALARM_DELAY, time);
         msg->act();
     }
 

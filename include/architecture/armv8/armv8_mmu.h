@@ -210,6 +210,12 @@ template<unsigned int ENTRIES>
             // CT == Strongly Ordered == C/B/TEX bits are 0
         }
 
+        void reflag(Flags flags) {
+            _flags = flags;
+            _pt->remap(phy_address(), _from, _to, flags);
+            db<MMU>(TRC) << "REFLAG" << endl;
+        }
+
         int resize(unsigned int amount) {
             if(!((_flags & Page_Flags::CWT) || (_flags & Page_Flags::CD))) // CT == Strongly Ordered == C/B/TEX bits are 0
                 return 0;

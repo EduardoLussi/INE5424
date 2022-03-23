@@ -36,6 +36,7 @@ public:
         TASK_DATA,
         TASK_MAIN,
         TASK_ENTRY,
+        TASK_SELF,
         TASK_ID,
 
         ADDRESS_SPACE_CREATE, 
@@ -50,6 +51,7 @@ public:
         SEGMENT_CREATE_PHY,
         SEGMENT_SIZE,
         SEGMENT_PHY_ADDRESS,
+        SEGMENT_REFLAG,
         SEGMENT_RESIZE,
 
         MUTEX_CREATE,
@@ -100,6 +102,10 @@ public:
         CHRONOMETER_LAP,
         CHRONOMETER_STOP,
         CHRONOMETER_READ,
+
+        SHARED_SEGMENT_CREATE,
+        SHARED_SEGMENT_NEW,
+        SHARED_SEGMENT_PORT,
     };
     enum ENTITY {
         DISPLAY,
@@ -114,6 +120,7 @@ public:
         ALARM,
         DELAY,
         CHRONOMETER,
+        SHARED_SEGMENT,
     };
 public:
     template<typename ... Tn>

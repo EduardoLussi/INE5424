@@ -4,6 +4,7 @@
 #define __memory_h
 
 #include <architecture.h>
+#include <utility/list.h>
 
 __BEGIN_SYS
 
@@ -62,6 +63,24 @@ private:
     Segment(Phy_Addr pt, unsigned int from, unsigned int to, Flags flags): Chunk(pt, from, to, flags) {
         db<Segment>(TRC) << "Segment(pt=" << pt << ",from=" << from << ",to=" << to << ",flags=" << flags << ") [Chunk::pt=" << Chunk::pt() << ",sz=" << Chunk::size() << "] => " << this << endl;
     }
+};
+
+class Shared_Segment: public Segment
+{
+private:
+    int _port;
+    typedef List<Shared_Segment> SS_List;
+
+public:
+    static SS_List _shared_segments;
+
+public:
+    Shared_Segment(int port, unsigned int bytes);
+
+    static Shared_Segment * using_port(int port);
+
+    void set_port(int port) {_port = port;}
+    int get_port() {return _port;}
 };
 
 __END_SYS

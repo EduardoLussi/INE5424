@@ -61,6 +61,9 @@ public:
             case Message::ENTITY::CHRONOMETER:
                 handle_chronometer();
                 break;
+            case Message::ENTITY::SHARED_SEGMENT:
+                handle_shared_segment();
+                break;
             default:
                 break;
         }
@@ -178,6 +181,11 @@ private:
                 Thread * m = t->main();
                 result(reinterpret_cast<unsigned long int>(m));
             }   break;
+            case Message::TASK_SELF: {
+                Task * t = Task::self();
+                result(reinterpret_cast<int>(t));
+                db<Agent>(TRC) << "Agent Task Self" << endl;
+            }   break;
             case Message::TASK_ID: {
                 Task * t = reinterpret_cast<Task *>(id());
                 unsigned int r = t->id();
@@ -264,6 +272,13 @@ private:
                 Segment * s = reinterpret_cast<Segment *>(id());
                 int r = s->phy_address();
                 result(r);
+            } break;
+            case Message::SEGMENT_REFLAG: {
+                Segment * s = reinterpret_cast<Segment *>(id());
+                Segment::Flags flags;
+                get_params(flags);
+                s->reflag(flags);
+                db<Agent>(TRC) << "SEGMENT REFLAG DONE" << endl;
             } break;
             case Message::SEGMENT_RESIZE: {
                 Segment * s = reinterpret_cast<Segment *>(id());
@@ -412,8 +427,7 @@ private:
             case Message::ALARM_DELAY : {
                 Microsecond time;
                 get_params(time);
-                Alarm * a = reinterpret_cast<Alarm *>(id());
-                a->delay(time);
+                Alarm::delay(time);
             }   break;
             default:
                 db<Agent>(TRC) << "FAILED :(" << endl;
@@ -466,6 +480,32 @@ private:
               Chronometer * c = reinterpret_cast<Chronometer *>(id());
               result(c->read());
           }   break;
+            default:
+                db<Agent>(TRC) << "FAILED :(" << endl;
+                break;
+        }
+    }
+
+    void handle_shared_segment(){
+        switch(method()) {
+            case Message::SHARED_SEGMENT_CREATE: {
+                int port;
+                unsigned int bytes;
+                get_params(port, bytes);
+                Shared_Segment * shared_seg = Shared_Segment::using_port(port);
+                if (!shared_seg) {
+                    db<Agent>(TRC) << "---SSS NOT FOUND : (---" << endl;
+                    shared_seg = new (SYSTEM) Shared_Segment(port, bytes);
+                }
+                result(reinterpret_cast<unsigned long int>(shared_seg));
+                db<Agent>(TRC) << "Stub Shared Segment CREATE" << endl;
+            }   break;
+            case Message::SHARED_SEGMENT_PORT: {
+                Shared_Segment * shared_seg = reinterpret_cast<Shared_Segment*>(id());
+                int port = shared_seg->get_port();
+                result(port);
+                db<Agent>(TRC) << "Stub Shared Segment PORT" << endl;
+            }   break;
             default:
                 db<Agent>(TRC) << "FAILED :(" << endl;
                 break;

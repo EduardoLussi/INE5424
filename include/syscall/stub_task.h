@@ -8,6 +8,7 @@
 #include <syscall/stub_address_space.h>
 #include <syscall/stub_segment.h>
 #include <memory.h>
+#include <process.h>
 
 __BEGIN_API
 
@@ -17,13 +18,20 @@ class Stub_Task
 {
 private:
     long int _id;
+    static Stub_Task * volatile _current;
     typedef _SYS::Message Message;
+    typedef _SYS::Address_Space Address_Space;
+    typedef _SYS::Segment Segment;
+    typedef _SYS::CPU CPU;
 
 public:
-    Stub_Task();
+    Stub_Task(){};
    
     template<typename ... Tn>
-    Stub_Task(Stub_Segment * cs, Stub_Segment * ds, int (* entry)(Tn ...), const Address_Space::Log_Addr & code, const Address_Space::Log_Addr & data, Tn ... an){
+    Stub_Task(Stub_Segment * stub_cs, Stub_Segment * stub_ds, int (* entry)(Tn ...), const CPU::Log_Addr & code, const CPU::Log_Addr & data, Tn ... an){
+        Segment * cs = reinterpret_cast<Segment *>(stub_cs->get_id());
+        Segment * ds = reinterpret_cast<Segment *>(stub_ds->get_id());
+
         Message * msg = new Message(0, Message::ENTITY::TASK, Message::TASK_CREATE, cs, ds, entry, code, data);
         msg->act();
         _id = msg->result();
@@ -60,7 +68,6 @@ public:
         Message * msg = new Message(_id, Message::ENTITY::TASK, Message::TASK_CODE);
         msg->act();
         int l = msg->result();
-        //return reinterpret_cast<Address_Space::Log_Addr>(l);
         return l;
     }
 
@@ -68,24 +75,22 @@ public:
         Message * msg = new Message(_id, Message::ENTITY::TASK, Message::TASK_DATA);
         msg->act();
         int l = msg->result();
-        //return reinterpret_cast<Address_Space::Log_Addr>(l);
         return l;
     }
-
-    /*Stub_Thread * main() {
-        Message * msg = new Message(_id, Message::ENTITY::TASK, Message::TASK_MAIN);
-        msg->act();
-        int m = msg->result();
-        Stub_Thread * st = new Stub_Thread();
-        st->set_id(m);
-        return reinterpret_cast<Stub_Thread *>(st);
-    }*/
 
     int id() {
         Message * msg = new Message(_id, Message::ENTITY::TASK, Message::TASK_ID);
         msg->act();
         long int r = msg->result();
         return reinterpret_cast<long int>(r);
+    }
+
+    static Stub_Task * volatile self() {
+        Message * msg = new Message(0, Message::ENTITY::TASK, Message::TASK_SELF);
+        msg->act();
+        int current_id = msg->result();
+        _current->_id = current_id;
+        return _current;
     }
 
     void set_id(int id) {_id = id;}

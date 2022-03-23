@@ -37,6 +37,10 @@ class System
     friend void ::operator delete[](void *);					// for _heap
 
 public:
+    static const unsigned int HEAP_SIZE = Traits<Application>::HEAP_SIZE;
+    static const unsigned int STACK_SIZE = Traits<Application>::STACK_SIZE;
+
+public:
     static System_Info * const info() { assert(_si); return _si; }
 
 private:
