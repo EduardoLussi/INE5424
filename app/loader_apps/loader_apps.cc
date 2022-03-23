@@ -47,8 +47,8 @@ int main(int argc, char**argv)
 
         // Add heap size to data segment
         ini_data_size = _SYS::MMU::align_page(ini_data_size);
-        // ini_data_size += _SYS::MMU::align_page(Traits<Application>::STACK_SIZE);
-        ini_data_size += _SYS::MMU::align_page(_SYS::Application::HEAP_SIZE);
+        ini_data_size += _SYS::MMU::align_page(Traits<Application>::HEAP_SIZE);
+        //ini_data_size += _SYS::MMU::align_page(_SYS::Application::HEAP_SIZE);
 
         cout << "APP NEW: " << "\n"
              << "Entry: " << hex << ini_entry << "\n"

@@ -11,7 +11,6 @@
 #include <memory.h>
 #include <process.h>
 #include <synchronizer.h>
-#include <time.h>
 
 __BEGIN_SYS
 
@@ -136,13 +135,18 @@ private:
         }
     }
 
-    /*void handle_task(){
+    void handle_task(){
         switch(method()) {
             case Message::TASK_CREATE: {
+                Segment * cs;
+                Segment * ds;
                 int (* entry)();
-                get_params(cs, ds, entry);
-                Task * t = new (SYSTEM) Task(cs, ds, entry, code, data);
+                Address_Space::Log_Addr code;
+                Address_Space::Log_Addr data;
+                get_params(cs, ds, entry, code, data);
+                Task * t = new (SYSTEM) Task(cs, ds, code, data, entry);
                 result(reinterpret_cast<unsigned long int>(t));
+                db<Agent>(TRC) << "AGENTE TASK CREATE" << endl;
             }   break;
             case Message::TASK_ADDRESS_SPACE: {
                 Task * t = reinterpret_cast<Task *>(id());
@@ -176,21 +180,16 @@ private:
             }   break;
             case Message::TASK_SELF: {
                 Task * t = Task::self();
-                result(reinterpret_cast<int>(t));
+                result(reinterpret_cast<unsigned long int>(t));
                 db<Agent>(TRC) << "Agent Task Self" << endl;
-            }   break;
-            case Message::TASK_ID: {
-                Task * t = reinterpret_cast<Task *>(id());
-                unsigned int r = t->id();
-                result(r);
             }   break;
             default:
                 db<Agent>(TRC) << "FAILED :(" << endl;
                 break;
         }
-    }*/
+    }
 
-    /*void handle_address_space(){
+    void handle_address_space(){
         switch(method()) {
             case Message::ADDRESS_SPACE_CREATE: {
                 Address_Space * a = new (SYSTEM) Address_Space();
@@ -238,7 +237,7 @@ private:
                 db<Agent>(TRC) << "FAILED :(" << endl;
                 break;
         }
-    }*/
+    }
     void handle_segment(){
         switch(method()) {
             case Message::SEGMENT_CREATE: {
@@ -283,7 +282,7 @@ private:
             default:
                 db<Agent>(TRC) << "FAILED :(" << endl;
                 break;
-        } 
+        }
     }
     void handle_mutex() {
         switch(method()) {

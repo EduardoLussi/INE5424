@@ -377,7 +377,7 @@ lib%.o: lib%.cc
 		$(CLEAN) $<.tmp
 
 %.bin: %.img
-		$(OBJCOPY) -O binary $< $@
+		#$(OBJCOPY) -O binary $< $@
 
 %.out: %.img
 		$(EMULATOR) $< | $(TEE) $@

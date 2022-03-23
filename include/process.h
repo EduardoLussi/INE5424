@@ -160,8 +160,8 @@ protected:
 
         _current = this;
         activate();
-        _main = new (SYSTEM) Thread(Thread::Configuration(Thread::RUNNING, Thread::MAIN, this, 0), entry, an ...);
-        //_main = new (SYSTEM) Thread(Thread::Configuration(Thread::RUNNING, Thread::LOADER, Traits<Application>::STACK_SIZE, this), entry, an ...);    // For Loader
+        //_main = new (SYSTEM) Thread(Thread::Configuration(Thread::RUNNING, Thread::MAIN, this, 0), entry, an ...);
+        _main = new (SYSTEM) Thread(Thread::Configuration(Thread::RUNNING, Thread::LOADER, this, Traits<Application>::STACK_SIZE), entry, an ...);    // For Loader
     }
 
 public:

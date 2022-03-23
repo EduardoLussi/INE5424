@@ -2,6 +2,7 @@
 
 #include <system.h>
 #include <syscall/message.h>
+#include <syscall/stub_thread.h>
 
 __BEGIN_SYS
 
@@ -19,6 +20,13 @@ OStream cout;
 OStream cerr;
 
 __END_API
+
+_API::Stub_Task* volatile _API::Stub_Task::_current = new _API::Stub_Task();
+
+// Bindings
+extern "C" {
+    void _exit(int s) { _API::Stub_Thread::exit(s); for(;;); }
+}
 
 // Bindings
 extern "C" {

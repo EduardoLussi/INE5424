@@ -127,4 +127,18 @@ dist: veryclean
 		find $(TOP) -name "*.S" -print | xargs sed -i "1r $(ETC)/license.txt.as"
 		$(CLEAN) $(ETC)/license.as
 
+pre_loader:
+		make cleanapps
+		rm img/loader.img
+		rm img/loader_apps.bin
+		rm img/loader_apps
+
+loader:
+		make APPLICATION=writer
+		make APPLICATION=reader
+		make APPLICATION=loader_apps
+		./bin/eposmkbi . img/loader.img img/loader_apps img/writer img/reader
+		/usr/bin/aarch64-linux-gnu-objcopy -O binary img/loader.img img/loader_apps.bin
+		make APPLICATION=loader_apps debug
+
 FORCE:

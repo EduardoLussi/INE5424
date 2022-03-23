@@ -48,7 +48,7 @@ public:
     }
 
     static Hertz frequency() {
-        Message *msg = new Message(id, Message::ENTITY::ALARM, Message::ALARM_FREQUENCY);
+        Message *msg = new Message(0, Message::ENTITY::ALARM, Message::ALARM_FREQUENCY);
         msg->act();
         return (msg->result());
     }
